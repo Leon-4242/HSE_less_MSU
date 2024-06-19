@@ -50,9 +50,9 @@ int main(void) {
 		}
     	} else {
 		if (sign == -1) {
-                        cout << "-" << p << "/2**" << q << endl;
+                        cout << "-" << p << "/2**" << -q << endl;
                 } else {
-                        cout << p << "/2**" << q << endl;
+                        cout << p << "/2**" << -q << endl;
                 }
     	}
     	return 0;
