@@ -1,25 +1,17 @@
-#include <stdio.h>
+#include<stdio.h>
+#include<malloc.h>
 int main (void)
 {
-	int x;
-	FILE* input = NULL;
-	input = fopen("in.txt", "r");
-	if (input==NULL)
+	char *word, c;
+	int i, len=0;
+	while (scanf("%c", &c)==1)
 	{
-		printf ("pizdec\n");
-		return -1;
+		printf("%d\n", len);
+		len++;
+		word = (char*)realloc(word, (len+1)*sizeof(char));
+		word [len-1]=c;
 	}
-	while (fscanf (input, "%d", &x)==1)
-	{
-		printf ("%d\n", x);
-	}
-	if (!feof(input))
-	{
-		printf("vse pizdec\n");
-		fclose (input);
-		return -1;
-	}
-	
-fclose (input);
-return	0;
-} 
+	word[len]='\0';
+	printf ("%s\n", word);
+	return 0;
+}
