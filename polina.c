@@ -6,17 +6,11 @@ void swap (int*, int, int, int);
 void multiplay (int*, int*, int*, int, int);
 int main (void)
 {
-<<<<<<< HEAD
 	int *array, *str, *vector;
 	int n, m, tmp, i=0, j=0;
 	FILE *input = NULL, *output = NULL;
 	input = fopen ("in.txt", "r");
 	if (input = NULL)
-=======
-	char *word, c;
-	int len=0;
-	while (scanf("%c", &c)==1)
->>>>>>> bca6c53 (update)
 	{
 		printf ("pizdec\n");
 		return -1;
