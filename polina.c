@@ -10,7 +10,7 @@ int main (void)
 	int n, m, tmp, i=0, j=0;
 	FILE *input = NULL, *output = NULL;
 	input = fopen ("in.txt", "r");
-	if (input = NULL)
+	if (input == NULL)
 	{
 		printf ("pizdec\n");
 		return -1;
@@ -33,7 +33,7 @@ int main (void)
 				fclose(input);
 				return -1;
 			}
-			array[i*n+j] = tmp;
+			array[i*m+j] = tmp;
 		}
 	}
 	fclose (input);
