@@ -1,10 +1,13 @@
 #include "1.h"
 #define N = 10
 
-class CintN {
-	char * val[N] {};
-	
-	public:
+using namespace CintN {
+	CintN(char* arr[N]) {
+		for (int i = 0; i < N; i++) {
+			val[i] = arr[i];
+		}
+	}
+
 		CintN(int value = 0) {
 			int k {};
 			while (value > 0 && k < N) {
@@ -22,38 +25,43 @@ class CintN {
 			}
 		}
 		
-		CintN operator+ (const CintN &v) {
-			int sum = 0;
+		CintN operator+ (const CintN &v) const {
+			int sum = 0; char *arr[N] {};
 			for (int i = 0; i < N; i++) {
-				sum = val[i] + v.val[i];
+				sum = val[i] + v.val[i] + arr[i];
 				if (sum > 9 && i < N-1) {
 					sum /= 10;
-					val[i+1] += 1;
+					arr[i+1] += 1;
 				}
 				if (sum > 9 && i == N-1) {
 					sum /= 10;
 				}
-				val[i] = sum;
+				arr[i] = sum;
 			}
+
+
+			return CintN(arr);
 		}
 		
-		CintN operator- (const CintN &v) {
-			int dif = 0;
+		CintN operator- (const CintN &v) const{
+			int dif = 0; int *arr[N] {};
 			if (v > this* || v == this*) {
 				for(int i = 0; i < N; i++){
-					val[i] = 0;
+					arr[i] = 0;
 				}
 			}
 			else {
 				for (int i = 0; i < N; i++) {
-					dif = val[i] - v.val[i];
+					dif = val[i] - v.val[i] + arr[i];
 					if (dif < 0 && i < N - 1){
 						dif += 10;
-						val[i+1]--;		
+						arr[i+1]--;		
 					}
-					val[i] = dif;
+					arr[i] = dif;
 				}
 			}
+
+			return CintN(arr);
 		}
 		
 		bool operator > (const CintN &v) const {
@@ -77,7 +85,14 @@ class CintN {
 			return true;
 		} 
 		
+		std::string print() const{
+			std::string number;
+			for (int i = 0; i < N; i++) {
+				number.insert(0, val[i]+48);
+			}
+
+			return number;
+		}
 		
-		
-};
+}
 

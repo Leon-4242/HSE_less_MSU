@@ -2,10 +2,12 @@
 #define
 
 #include <iostream>
-
+#include <string>
+using namespace CintN {
 class CintN {
 	private:
 		char * val[N] {};
+		CintN (char *arr[N]);
 	public:
 		CintN (int value = 0);
 		
@@ -21,5 +23,8 @@ class CintN {
 		
 		bool operator == (const CintN &v) const;
 		
+		std::string print() const;		
 };
+
+}
 #endif
