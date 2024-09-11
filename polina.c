@@ -27,7 +27,7 @@ int main (void)
 		return -1;
 	}
 	array = (int*)malloc(n*m*sizeof(int));
-	for (i=0; 1<n; i++)
+	for (i=0; i<n; i++)
 	{
 		for (j=0; j<m; j++)
 		{
@@ -82,17 +82,18 @@ int main (void)
 int comp (int *array, int m, int k, int t)
 {
 	int i;
-	for (i=0; 1<m; i++)
+	for (i=0; i<m; i++)
 	{
 		if (array[k*m+i] < array [t*m +i])
 		{
-			return 1;
+			return -1;
 		}
 		if (array[k*m+i] > array [t*m +i])
 		{
-			return -1;
+			return 1;
 		}
 	}
+
 	return 0;
 }
 void swap (int *array, int m, int k, int t)
@@ -107,7 +108,7 @@ void swap (int *array, int m, int k, int t)
 }
 void multiplay (int *array, int *vector, int m, int n)
 {
-	int i, j, tmp;
+	int i, j, tmp = 0;
 	for (i=0; i<n; i++)
 	{
 		for (j=0; j<m; j++)
@@ -115,5 +116,6 @@ void multiplay (int *array, int *vector, int m, int n)
 			tmp += array [i*m+j] * array [j];
 		}
 		vector [i] = tmp;
+		tmp = 0;
 	}
 }
