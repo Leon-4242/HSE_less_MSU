@@ -1,6 +1,6 @@
 #ifndef CINTN
 #define CINTN
-#define N 10
+#define N 1
 
 #include <iostream>
 #include <string>

@@ -80,15 +80,19 @@ bool CintN::operator == (const CintN &v) const {
 	return true;
 } 
 		
-std::string CintN::print() const{
-	char number[N] {};
-	for (int i = 0; i < N; i++) {
-		number[i] = val[i] + 48; ;
-	}
-	std::string n(number);
-	std::string res; 
-	for (int i = 0; i < N; i++) {
-		res.insert(0, n.substr(i, 1));	
+std::string CintN::print() const {
+	bool flag = true;
+	std::string res;
+
+	for (int i = N-1; i >= 0; i--) {
+		if (flag) {
+			if (val[i] != 0) {
+				flag = false;
+				res.push_back(val[i]+48);
+			}
+		} else {
+			res.push_back(val[i]+48);
+		}
 	}
 	
 	return res;

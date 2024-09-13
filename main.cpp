@@ -3,9 +3,9 @@
 
 using namespace std;
 int main(void) {
-	CintN k(5), t(8);
+	CintN k(4), t(5);
 
-	cout << k.print() << "+" << t.print() << "=" << (k+t).print() << endl;
+	cout << k.print() << "-" << t.print() << "=" << (k-t).print() << endl;
 
 	return 0;
 }
