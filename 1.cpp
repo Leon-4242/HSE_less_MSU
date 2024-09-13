@@ -1,98 +1,97 @@
 #include "1.h"
-#define N = 10
+CintN::CintN(char arr[N]) {
+	for (int i = 0; i < N; i++) {
+		val[i] = arr[i];
+	}
+}
 
-using namespace CintN {
-	CintN(char* arr[N]) {
+CintN::CintN(int value = 0) {
+	int k {};
+	while (k < N) {
+		val[k] = value%10;
+		value /= 10;
+		k++;
+	}
+}
+		
+CintN::~CintN(){}
+		
+CintN::CintN(const CintN &v) {
+	for (int i = 0; i < N; i++) {
+		val[i] = v.val[i];
+	}
+}
+
+CintN CintN::operator+ (const CintN &v) const {
+	char sum = 0; char arr[N] {};
+	for (int i = 0; i < N; i++) {
+		sum = val[i] + v.val[i] + arr[i];
+		if (sum > 9 && i < N-1) {
+			sum %= 10;
+			arr[i+1] += 1;
+		}
+		if (sum > 9 && i == N-1) {
+			sum %= 10;
+		}
+		arr[i] = sum;
+	}
+	return CintN(arr);
+}
+	
+CintN CintN::operator- (const CintN &v) const{
+	int dif = 0; char arr[N] {};
+	if ((v > *this) || (v == *this)) {
+		for(int i = 0; i < N; i++){
+			arr[i] = 0;
+		}
+	}
+	else {
 		for (int i = 0; i < N; i++) {
-			val[i] = arr[i];
+			dif = val[i] - v.val[i] + arr[i];
+			if (dif < 0 && i < N - 1){
+				dif += 10;
+				arr[i+1]--;		
+			}
+			arr[i] = dif;
 		}
 	}
 
-		CintN(int value = 0) {
-			int k {};
-			while (value > 0 && k < N) {
-				val[k] = value%10;
-				value /= 10;
-				k++;
-			}
-		}
-		
-		~CintN(){}
-		
-		CintN(const CintN &v) {
-			for (int i = 0; i < N; i++) {
-				val[i] = v.val[i];
-			}
-		}
-		
-		CintN operator+ (const CintN &v) const {
-			int sum = 0; char *arr[N] {};
-			for (int i = 0; i < N; i++) {
-				sum = val[i] + v.val[i] + arr[i];
-				if (sum > 9 && i < N-1) {
-					sum /= 10;
-					arr[i+1] += 1;
-				}
-				if (sum > 9 && i == N-1) {
-					sum /= 10;
-				}
-				arr[i] = sum;
-			}
-
-
-			return CintN(arr);
-		}
-		
-		CintN operator- (const CintN &v) const{
-			int dif = 0; int *arr[N] {};
-			if (v > this* || v == this*) {
-				for(int i = 0; i < N; i++){
-					arr[i] = 0;
-				}
-			}
-			else {
-				for (int i = 0; i < N; i++) {
-					dif = val[i] - v.val[i] + arr[i];
-					if (dif < 0 && i < N - 1){
-						dif += 10;
-						arr[i+1]--;		
-					}
-					arr[i] = dif;
-				}
-			}
-
-			return CintN(arr);
-		}
-		
-		bool operator > (const CintN &v) const {
-			// val > v.val  return true
-			for (int i = N-1; i >= 0; i++) {
-				if (val[i] < v.val[i]){
-					return false;
-				} else if (val[i] > v.val[i]) {
-					return true;
-				}
-			}
-			return false;	
-		}
-		
-		bool operator == (const CintN &v) const {
-			for (int i = 0; i < N; i++) {
-				if(val[i] != v.val[i]) {
-					return false;
-				}
-			}
-			return true;
-		} 
-		
-		std::string print() const{
-			std::string number;
-			for (int i = 0; i < N; i++) {
-				number.insert(0, val[i]+48);
-			}
-
-			return number;
-		}
-		
+	return CintN(arr);
 }
+		
+bool CintN::operator > (const CintN &v) const {
+	// val > v.val  return true
+	for (int i = N-1; i >= 0; i++) {
+		if (val[i] < v.val[i]){
+			return false;
+		} else if (val[i] > v.val[i]) {
+			return true;
+		}
+	}
+	return false;	
+}
+		
+bool CintN::operator == (const CintN &v) const {
+	for (int i = 0; i < N; i++) {
+		if(val[i] != v.val[i]) {
+			return false;
+		}
+	}
+	return true;
+} 
+		
+std::string CintN::print() const{
+	char number[N] {};
+	for (int i = 0; i < N; i++) {
+		number[i] = val[i] + 48; ;
+	}
+	std::string n(number);
+	std::string res; 
+	for (int i = 0; i < N; i++) {
+		res.insert(0, n.substr(i, 1));	
+	}
+	
+	return res;
+}
+		
 

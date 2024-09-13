@@ -15,13 +15,17 @@ const double PI = 3.14159265358979323846;
 
 int main() {
     while (true) {
-        double lat0, lon0;        
-        double lat1, lon1;
-        cout << "Enter coordinates of 2 points on the Earth surface:" << endl;
-        cin >> lat0 >> lon0 >> lat1 >> lon1;
+        double mlat, mlon;        
+        double x, y;
+        cout << "Enter coordinates of centre of map and point on map:" << endl;
+        cin >> mlat >> mlon >> x >> y;
         if (!cin.good())
             break;
-        R3Vector v0 = radiusVector(lat0, lon0);
+        R3Vector rm = radiusVector(mlat, mlon);
+	R3Vector y_ = R3Vector(0.0 , 0.0 , 1).vectorProduct(rm);
+	R3Vector x_ = y.vectorProduct(rm);
+	
+	EARTH_RADIUS*((x*x_+y*y_+rm).normalize());
         R3Vector v1 = radiusVector(lat1, lon1);
         double alpha = v0.angle(v1);    // atan2(y, x)
         double dist = alpha*EARTH_RADIUS;
