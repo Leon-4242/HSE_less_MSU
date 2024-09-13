@@ -1,11 +1,11 @@
-#include "1.h"
+#include "task1.h"
 #include <iostream>
 
 using namespace std;
 int main(void) {
-	CintN k(4), t(5);
+	CIntN nums1(100), nums2(10);
 
-	cout << k.print() << "-" << t.print() << "=" << (k-t).print() << endl;
+	cout << nums1.print() << "+" << nums2.print() << "=" << (nums1+nums2).print() << endl;
 
 	return 0;
 }

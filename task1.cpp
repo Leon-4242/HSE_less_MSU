@@ -1,20 +1,19 @@
-#include <task1.h>
-#include <string.h>
+#include "task1.h"
+#include <cstring>
+
 using namespace std;
 CIntN::CIntN() {
     cout << "Default constructor for " << this->print() << endl;
 }
-CIntN::CIntN(*char s){
+CIntN::CIntN(char* s){
     int len_s = strlen(s);
-    for(int i = 0, i < N, i++){
+    for(int i = 0; i < N; i++){
         if('0' > s[len_s - 1 - i] || s[len_s - 1 - i] > '9'){
             cout << "wrong number" << endl;
-            CIntN::CIntN();
             break;
         }
         arr[N-1-i] = s[len_s - 1 - i] - '0';
     }
-     cout << "Constructor for" << *this << endl;
 }
 CIntN::CIntN(const CIntN &a){
     for(int i = 0; i < N; i++){
@@ -22,11 +21,11 @@ CIntN::CIntN(const CIntN &a){
     }
 }
 CIntN::CIntN(int num){
-    int index = 0;
-    while (index < N){
+    int index = N-1;
+    while (index >= 0){
         arr[index] = num % 10;
         num = num/10;
-        index ++;
+        index--;
     }
 }
 CIntN CIntN::operator+(const CIntN &a){
@@ -37,7 +36,7 @@ CIntN CIntN::operator+(const CIntN &a){
         elem = arr[i] + a.arr[i] + perenos;
         perenos = elem / 10;
         elem = elem % 10;
-        array[i] = elem;
+        array[i] = elem+48;
     }
     if (perenos) cout << "perepolnenie" << endl;
     CIntN p(array);
@@ -63,7 +62,7 @@ CIntN CIntN::operator-(const CIntN &a){
     return b;
 
 }
-char* CIntN:: print() const{
+char* CIntN::print() const{
     bool flag = true;
     char* res;
     int k;
