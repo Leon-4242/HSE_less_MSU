@@ -28,6 +28,17 @@ CIntN::CIntN(int num){
         index--;
     }
 }
+
+CIntN::~CIntN() {}
+
+CIntN CIntN::operator=(const CIntN &a) {
+	for (int i = 0; i < N; i++) {
+		arr[i] = a.arr[i];
+	}
+
+	return *this;
+}
+
 CIntN CIntN::operator+(const CIntN &a){
     int elem, perenos = 0;
     char* array;
@@ -88,4 +99,26 @@ char* CIntN::print() const{
         res[k] = '\0';
     }
     return res;
+}
+
+CIntN CIntN::get(void) {
+	int tmp = rand()%powi(10, N);
+	CIntN p(tmp);
+	*this = p;
+	return *this;
+}
+
+int powi (int base, int exp) {
+	int y = 1;
+	while (exp > 0 && base > 1) {
+		if (exp %2 == 0) {
+			exp /= 2;
+			base *= base;
+		} else {
+			exp--;
+			y *= base;
+		}
+	}
+
+	return y;
 }
