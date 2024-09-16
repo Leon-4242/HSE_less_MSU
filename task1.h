@@ -2,7 +2,7 @@
 #define TASK1
 
 #include <iostream>
-#define N 100
+#define N 3
 
 
 class CIntN

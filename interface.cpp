@@ -55,6 +55,10 @@ int func(void) {
 			cout << "\nEnter first number:\n" << endl;
 			char* tmp = new char[N] {};
 			cin >> tmp;
+			if (strlen(tmp) > N) {
+				cout << "\nIncorrecrt data\n" << endl;
+				return 1;
+			}
 			for (size_t i = 0; i < strlen(tmp); i++) {
 				if (!isdigit(tmp[i])) {
 					cout << "\nIncorrecrt data\n" << endl;
@@ -80,6 +84,11 @@ int func(void) {
                         cout << "\nEnter second number:\n" << endl;
                         char* tmp = new char[N] {};
                         cin >> tmp;
+			if (strlen(tmp) > N) {
+                                cout << "\nIncorrecrt data\n" << endl;
+                                return 1;
+                        }
+
                         for (size_t i = 0; i < strlen(tmp); i++) {
                                 if (!isdigit(tmp[i])) {
                                         cout << "\nIncorrecrt data\n" << endl;
