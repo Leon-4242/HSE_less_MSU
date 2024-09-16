@@ -1,5 +1,6 @@
 #include "interface.h"
 #include "task1.h"
+#include <cstring>
 
 using namespace std;
 int func(void) {
@@ -41,31 +42,54 @@ int func(void) {
 
 		CIntN num1, num2;
 		if (flag_d1) {
-			num1.get();
-		} else {
-			cout << "\nEnter first number:\n" << endl;
-			int tmp;
-			cin >> tmp;
-			if (tmp < 0) {
-				cout << "\nIncorrecrt data\n" << endl;
+			cout << "\nEnter length of string:\n" << endl;
+			int n;
+			cin >> n;
+			if (n < 0 || n > N) {
+				cout << "\nIncorrect data.\n" << endl;
 				return 1;
 			}
+
+			num1.get(n);
+		} else {
+			cout << "\nEnter first number:\n" << endl;
+			char* tmp = new char[N] {};
+			cin >> tmp;
+			for (size_t i = 0; i < strlen(tmp); i++) {
+				if (!isdigit(tmp[i])) {
+					cout << "\nIncorrecrt data\n" << endl;
+ 	                        	return 1;
+				}
+			}
 			CIntN p(tmp);
+			delete[] tmp;
 			num1 = p;
 		}
 
 		if (flag_d2) {
-                        num2.get();
-                } else {
-                        cout << "\nEnter second number:\n" << endl;
-                        int tmp;
-                        cin >> tmp;
-                        if (tmp < 0) {
-                                cout << "\nIncorrecrt data\n" << endl;
+			cout << "\nEnter length of string:\n" << endl;
+                        int n;
+                        cin >> n;
+                        if (n < 0 || n > N) {
+                                cout << "\nIncorrect data.\n" << endl;
                                 return 1;
                         }
+
+                        num2.get(n);
+                } else {
+                        cout << "\nEnter second number:\n" << endl;
+                        char* tmp = new char[N] {};
+                        cin >> tmp;
+                        for (size_t i = 0; i < strlen(tmp); i++) {
+                                if (!isdigit(tmp[i])) {
+                                        cout << "\nIncorrecrt data\n" << endl;
+                                        return 1;
+                                }
+                        }
                         CIntN p(tmp);
+                        delete[] tmp;
                         num2 = p;
+
                 }
 
 		cout << num1.print() << (flag_a ? "+" : "-") << num2.print() << "=" << (flag_a ? num1+num2 : num1-num2).print() << endl;

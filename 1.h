@@ -10,12 +10,16 @@ class CintN {
 		char val[N] {};
 		CintN (char arr[N]);
 	public:
+		CintN(void);
+
 		CintN (int value);
 		
 		~CintN ();
 		
 		CintN(const CintN &v);
 		
+		CintN operator= (const CintN &v);
+
 		bool operator > (const CintN &v) const;
 
 		bool operator == (const CintN &v) const;
@@ -24,7 +28,11 @@ class CintN {
 		
 		CintN operator- (const CintN &v) const;
 		
-		std::string print() const;		
+		std::string print() const;
+
+		CintN gen(void);	
 };
 
+
+int pow_int(int, int);
 #endif

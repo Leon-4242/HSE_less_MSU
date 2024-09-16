@@ -20,9 +20,7 @@ class CIntN
         CIntN operator-(const CIntN &);
         char* print () const;
 
-	CIntN get();
+	CIntN get(int);
 };
-
-int powi(int base, int exp);
 
 #endif

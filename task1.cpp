@@ -9,7 +9,6 @@ CIntN::CIntN(char* s){
     int len_s = strlen(s);
     for(int i = 0; i < N; i++){
         if('0' > s[len_s - 1 - i] || s[len_s - 1 - i] > '9'){
-            cout << "wrong number" << endl;
             break;
         }
         arr[N-1-i] = s[len_s - 1 - i] - '0';
@@ -101,24 +100,15 @@ char* CIntN::print() const{
     return res;
 }
 
-CIntN CIntN::get(void) {
-	int tmp = rand()%powi(10, N);
-	CIntN p(tmp);
-	*this = p;
-	return *this;
-}
-
-int powi (int base, int exp) {
-	int y = 1;
-	while (exp > 0 && base > 1) {
-		if (exp %2 == 0) {
-			exp /= 2;
-			base *= base;
+CIntN CIntN::get(int n) {
+	for (int i = 0; i < n; i++) {
+		if (i == n-1) {
+			arr[N-n] = rand()%9 +1;
 		} else {
-			exp--;
-			y *= base;
+			arr[N-1-i] = rand()%10;
 		}
 	}
 
-	return y;
+	return *this;
 }
+

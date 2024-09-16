@@ -466,7 +466,7 @@ void output_m(FILE *f, prod_m **s, int n) {
 }
 
 void output1(FILE *f, prod *s) {
-        fprintf(f, "%-24.24s %7d    %-10.10lf\n", s->Name, s->Count, s->Rating);
+        fprintf(f, "%s %d %lf\n", s->Name, s->Count, s->Rating);
 }
 
 void output1_m(FILE *f, prod_m *s) {

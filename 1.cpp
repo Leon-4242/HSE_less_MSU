@@ -5,7 +5,13 @@ CintN::CintN(char arr[N]) {
 	}
 }
 
-CintN::CintN(int value = 0) {
+CintN::CintN() {
+	int tmp = rand()%pow_int(10, N);
+	CintN p(tmp);
+	*this = p;
+}
+
+CintN::CintN(int value) {
 	int k {};
 	while (k < N) {
 		val[k] = value%10;
@@ -20,6 +26,14 @@ CintN::CintN(const CintN &v) {
 	for (int i = 0; i < N; i++) {
 		val[i] = v.val[i];
 	}
+}
+
+CintN CintN::operator= (const CintN &v) {
+	for (int i = 0; i < N; i++) {
+		val[i] = v.val[i];
+	}
+
+	return *this;
 }
 
 CintN CintN::operator+ (const CintN &v) const {
@@ -98,4 +112,18 @@ std::string CintN::print() const {
 	return res;
 }
 		
+int pow_int(int base, int exp) {
+	int y = 1;
 
+	while ( base > 1 && exp > 0) {
+		if (exp%2 == 0) {
+			exp /= 2;
+			base *= base;
+		} else {
+			exp--;
+			y *=base;
+		}
+	}
+
+	return y;
+}
