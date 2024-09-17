@@ -1,18 +1,20 @@
 #include "task1.h"
-#include <cstring>
 
 using namespace std;
-CIntN::CIntN() {
-    cout << "Default constructor for " << this->print() << endl;
-}
+CIntN::CIntN() {}
+
 CIntN::CIntN(char* s){
-    int len_s = strlen(s);
-    for(int i = 0; i < N; i++){
-        if('0' > s[len_s - 1 - i] || s[len_s - 1 - i] > '9'){
-            break;
-        }
-        arr[N-1-i] = s[len_s - 1 - i] - '0';
-    }
+	int len_s = strlen(s);
+	for(int i = 0; i < N; i++){
+		if (i < len_s) {
+			if(48 > s[len_s - 1 - i] || s[len_s - 1 - i] > 57){
+            			break;
+			}
+			arr[N-1-i] = s[len_s - 1 - i] - 48;
+		} else {
+			arr[N-1-i] = 0;
+    		}
+	}
 }
 CIntN::CIntN(const CIntN &a){
     for(int i = 0; i < N; i++){
@@ -39,24 +41,28 @@ CIntN CIntN::operator=(const CIntN &a) {
 }
 
 CIntN CIntN::operator+(const CIntN &a){
-    int elem, perenos = 0;
-    char* array;
-    array = new char [N];
-    for(int i = N-1; i >= 0; i--){
-        elem = arr[i] + a.arr[i] + perenos;
-        perenos = elem / 10;
-        elem = elem % 10;
-        array[i] = elem+48;
-    }
-    if (perenos) cout << "perepolnenie" << endl;
-    CIntN p(array);
-    delete[] array;
-    return p;
+    	int elem, perenos = 0;
+    	char* array;
+    	array = new char[N+1];
+	array[N] = 0;
+    	for(int i = N-1; i >= 0; i--){
+    		elem = arr[i] + a.arr[i] + perenos;
+        	perenos = elem / 10;
+        	elem = elem % 10;
+        	array[i] = elem+48;
+    	}
+	
+    	if (perenos) cout << "perepolnenie" << endl;
+    	CIntN p(array);
+    	delete[] array;
+    	
+	return p;
 }
 CIntN CIntN::operator-(const CIntN &a){
     int elem, perenos = 0;
     char* array;
-    array = new char [N];
+    array = new char [N+1];
+    array[N] = 0;
     for(int i = N-1; i >= 0; i --){
         elem = arr[i] - a.arr[i] - perenos;
         perenos = 0;
@@ -64,8 +70,9 @@ CIntN CIntN::operator-(const CIntN &a){
             elem += 10; 
             perenos = 1;
         }
-        array[i] = elem;
+        array[i] = elem + 48;
     }
+
     if (perenos) cout << "perepolnenie" << endl;
     CIntN b(array);
     delete[] array;

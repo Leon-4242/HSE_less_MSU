@@ -2,13 +2,16 @@
 #define TASK1
 
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <cstring>
 #define N 100
 
 
 class CIntN
 {
     private:
-        unsigned int arr[N] {};
+        char arr[N] {};
     public:
         CIntN();
         CIntN(char*);

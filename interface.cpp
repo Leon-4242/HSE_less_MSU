@@ -1,11 +1,11 @@
 #include "interface.h"
-#include "task1.h"
-#include <cstring>
 
 using namespace std;
 int func(void) {
 	int flag_action, flag_data1, flag_data2;
 	bool flag_a, flag_d1, flag_d2;
+	srand(time(NULL));
+
 	while (true) {
 		cout << "Choose action:\n1)Addition        2)Substraction\n" << endl;
 		cin >> flag_action;
@@ -53,8 +53,9 @@ int func(void) {
 			num1.get(n);
 		} else {
 			cout << "\nEnter first number:\n" << endl;
-			char* tmp = new char[N] {};
+			char* tmp = new char[N];
 			cin >> tmp;
+			
 			if (strlen(tmp) > N) {
 				cout << "\nIncorrecrt data\n" << endl;
 				return 1;
@@ -100,8 +101,15 @@ int func(void) {
                         num2 = p;
 
                 }
-
-		cout << num1.print() << (flag_a ? "+" : "-") << num2.print() << "=" << (flag_a ? num1+num2 : num1-num2).print() << endl;
+		char *tmp = num1.print();
+		cout << tmp << (flag_a ? "+" : "-");
+		delete[] tmp;
+		tmp = num2.print();
+		cout << tmp << "=";
+	       	delete[] tmp;
+		tmp = (flag_a ? num1+num2 : num1-num2).print();
+		cout << tmp << endl;
+		delete[] tmp;
 
 	}
 }
