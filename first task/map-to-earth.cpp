@@ -1,6 +1,3 @@
-// Print a distance in meters between 2 points on the Earth surface.
-// Coordinates of points are given as latitude and longtitude in degrees.
-//
 #include <iostream>
 #include <cmath>
 #include "R3Graph.h"
@@ -22,14 +19,15 @@ int main() {
         if (!cin.good())
             break;
         R3Vector rm = radiusVector(mlat, mlon);
-	R3Vector y_ = R3Vector(0.0 , 0.0 , 1).vectorProduct(rm);
-	R3Vector x_ = y.vectorProduct(rm);
+	R3Vector x_ = (R3Vector(0.0 , 0.0 , 1.0).vectorProduct(rm)).normalize();
+	R3Vector y_ = (rm.vectorProduct(x_)).normalize();
 	
-	EARTH_RADIUS*((x*x_+y*y_+rm).normalize());
-        R3Vector v1 = radiusVector(lat1, lon1);
-        double alpha = v0.angle(v1);    // atan2(y, x)
-        double dist = alpha*EARTH_RADIUS;
-        cout << "Distance = " << dist <<endl;
+	R3Vector base(EARTH_RADIUS*rm+x*x_+y*y_);
+        double theta = 90 - (base.angle(R3Vector(0.0, 0.0, 1.0)))*(180.0)/PI;
+    	double phi = atan2(base.y, base.x)*(180.0)/PI;
+		//(R3Vector(base.x, 0.0, 0.0).angle(R3Vector(base.x, base.y, 0.0)))*(180.0)/PI;
+
+        cout << "lat = " << theta << " lon = " << phi << endl;
     }
     return 0;
 }
