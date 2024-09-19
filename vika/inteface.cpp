@@ -16,10 +16,13 @@ void func(void) {
 		if (error) {
 			break;
 		}
-		
-		char op = (flag_a) ? '+' : '-' ;
-		CintN res =(flag_a) ? (d1+d2) : (d1-d2);
-		cout << d1.print() << op << d2.print() << '=' << res.print() << endl;
+		if (!flag_a && d2 > d1) {
+			cout << "Wrong data: I don't know negative numbers! I always on positive!\n" << endl;
+		} else {
+			char op = (flag_a) ? '+' : '-' ;
+			CintN res =(flag_a) ? (d1+d2) : (d1-d2);
+			cout << d1.print() << op << d2.print() << '=' << res.print() << endl;
+		}
 	}
 
 }
@@ -73,16 +76,14 @@ CintN make(bool flag_d, bool &flag) {
 		res.generate(n);		
 	} else {
 		cout << "\nEnter number:\n" << endl;
-		char tmp[N];
+		std::string tmp;
 		cin >> tmp;	
 		
-		for (int i = 0; i < N; i++) {
-			if (tmp[i] == 0) {
-				break;
-			} else {
+		for (size_t i = 0; i < tmp.length(); i++) {
+			if (tmp[i] != 0) {
 				if (!isdigit(tmp[i])) {
 					cout << "\nIncorrecrt data\n" << endl;
-            	   	flag = true;
+            	   			flag = true;
 					return res;
 				}
 			}

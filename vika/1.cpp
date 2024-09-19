@@ -6,32 +6,32 @@ CintN::CintN(char arr[N]) {
 	
 }
 
-CintN::CintN (std::string val) {
+CintN::CintN (std::string str) {
 	bool flag = true;
-	for (int i = 0; i < val.length() && i ; i++) {
+	int k = str.length(); 
+	int t = 0;
+	for (int i = k-1; i >= 0; i--) {
 		if (flag) {
-			if (val[val.length()-1-i]
-		}
-	}
-	
-	char number[N]; int k = 0; bool flag = true;
-	for (int i = N-1; i >= 0; i--) {
-		if (flag) {
-			if (val[i] != 0) {
+			if (str[i] != 0) {
 				flag = false;
 			} else {
 				continue;
 			}
 		}
-		number[k] = val[i] + 48;
-		k++;
+		if (str[i] < 48 || str[i] > 57) {
+			std::cout << "Wrong data." << std::endl;
+			break;
+		}
+		if (t > N-1) {
+			break;
+		}
+		val[t] = str[i] - 48;
+		t++;
 	}
-	for (int i = k; i < N; i++) {
-		number[i] = 0;
-	}
-	std::string res(number);
 
-	return res;
+	for (int i = t; i < N; i++) {
+		val[i] = 0;
+	}
 }
 
 CintN::CintN(int value = 0) {
@@ -91,7 +91,7 @@ CintN CintN::operator- (const CintN &v) const{
 		
 bool CintN::operator> (const CintN &v) const {
 	// val > v.val  return true
-	for (int i = N-1; i >= 0; i++) {
+	for (int i = N-1; i >= 0; i--) {
 		if (val[i] < v.val[i]){
 			return false;
 		} else if (val[i] > v.val[i]) {
@@ -135,7 +135,9 @@ std::string CintN::print() const{
 		number[i] = 0;
 	}
 	std::string res(number);
-
+	if(res.empty()) {
+		res = "0";
+	}
 	return res;
 }
 		
@@ -146,9 +148,10 @@ CintN& CintN::generate(int n) {
 	}
 	
 	for (int i = 0; i < N; i++) {
-		if (i > n) {
+		if (i > n-1) {
 			val[i] = 0;
-		} else if (i == n) {
+			continue;
+		} else if (i == n-1) {
 			val[i] = rand()%9 + 1;
 			continue;
 		}

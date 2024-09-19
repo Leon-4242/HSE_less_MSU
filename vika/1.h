@@ -1,25 +1,23 @@
 #ifndef CINTN
 #define CINTN
-#define N 1
+#define N 10
 
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
 class CintN {
 	private:
-		char val[N] {};
+		char val[N];
 		CintN (char arr[N]);
+		CintN (std::string val);
 	public:
-		CintN(void);
-
 		CintN (int value);
 		
 		~CintN ();
 		
 		CintN(const CintN &v);
 		
-		CintN operator= (const CintN &v);
-
 		bool operator > (const CintN &v) const;
 
 		bool operator == (const CintN &v) const;
@@ -28,11 +26,13 @@ class CintN {
 		
 		CintN operator- (const CintN &v) const;
 		
+		CintN& operator= (const CintN &v);
+		
 		std::string print() const;
-
-		CintN gen(void);	
+		
+		CintN& generate(int n);
+		
+		friend CintN make(bool flag_d, bool &flag);
 };
 
-
-int pow_int(int, int);
 #endif
