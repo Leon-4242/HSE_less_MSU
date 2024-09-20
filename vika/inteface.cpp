@@ -21,7 +21,7 @@ void func(void) {
 		} else {
 			char op = (flag_a) ? '+' : '-' ;
 			CintN res =(flag_a) ? (d1+d2) : (d1-d2);
-			cout << d1.print() << op << d2.print() << '=' << res.print() << endl;
+			cout << d1 << op << d2 << '=' << res << endl;
 		}
 	}
 

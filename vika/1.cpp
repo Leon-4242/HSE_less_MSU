@@ -160,4 +160,8 @@ CintN& CintN::generate(int n) {
 	}
 	
 	return *this;
-}	
+}
+
+std::ostream& operator<< (std::ostream& os, CintN ob) {
+	return os << ob.print();
+}

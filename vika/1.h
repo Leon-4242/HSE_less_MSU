@@ -33,6 +33,8 @@ class CintN {
 		CintN& generate(int n);
 		
 		friend CintN make(bool flag_d, bool &flag);
+
+		friend std::ostream& operator<< (std::ostream& os, CintN ob);
 };
 
 #endif
