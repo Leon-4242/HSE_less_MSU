@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <ctype.h>
 
 typedef struct Product 
 {
@@ -50,7 +51,7 @@ void outputsm (FILE *f, prodm **s, int n);
 
 int main (void)
 {
-	int i = 0, n = 0, e_flag = 0, flag_M = 0; flag flag = { 0, 0};
+	int i = 0, n = 0, e_flag = 0; flag flag = { 0, 0};
 
 	prod **array = NULL;
 	prodm **arraym = NULL;
@@ -187,6 +188,7 @@ prod* get (void)
 	int n, l;
 	char *w = NULL;
 	prod* res;
+	res = (prod*)malloc(sizeof(prod));
 	res->Count = rand()%10000;
 	res->Rating = rand()/1000.0;
 	inA = fopen("inA.txt", "r");
@@ -246,7 +248,7 @@ prodm* getm (void)
 	int n, l;
 	char *w = NULL;
 	prodm* res;
-	
+	res = (prodm*)malloc(sizeof(prodm));	
 	res->Count = rand()%10000;
 	res->Rating = rand()/1000.0;
 	
@@ -510,7 +512,8 @@ int input2 (FILE *f, prod *w)
 		{
 			lenght++;
 			w->Name = (char*)realloc(w->Name, (lenght+1)*sizeof(char));
-			w->Name[lenght-1] = '\0';
+			w->Name[lenght-1] = c;
+			w->Name[lenght] = '\0';
 		}
 		else
 		{
@@ -563,10 +566,9 @@ int input2m (FILE *f, prodm *w)
 		{
 			lenght++;
 			w->Name = (char*)realloc(w->Name, (lenght+1)*sizeof(char));
-			w->Name[lenght-1] = '\0';
-		}
-		else
-		{
+			w->Name[lenght-1] = c;
+			w->Name[lenght] = '\0';
+		} else {
 			return -1;
 		}
 	}
@@ -617,7 +619,8 @@ int input2mm (FILE *f, prodm* w)
 		{
 			lenght++;
 			w->Manufactory = (char*)realloc(w->Manufactory, (lenght+1)*sizeof(char));
-			w->Manufactory[lenght-1] = '\0';
+			w->Manufactory[lenght-1] = c;
+			w->Manufactory[lenght] = '\0';
 		}
 		else
 		{
@@ -703,11 +706,11 @@ int output(prod **array, prodm **arraym, int n, prod *curr, prodm *currm, flag f
 }
 void output1 (FILE *f, prod *w)
 {
-	fprintf (f, "%s %d &ln\n", w->Name, w->Count, w->Rating);
+	fprintf (f, "%s %d %lf\n", w->Name, w->Count, w->Rating);
 }
 void output1m (FILE *f, prodm *w)
 {
-	fprintf (f, "%s %d %ln %s\n", w->Name, w->Count, w->Rating, w->Manufactory);
+	fprintf (f, "%s %d %lf %s\n", w->Name, w->Count, w->Rating, w->Manufactory);
 }
 void outputs (FILE *f, prod **s, int n)
 {
