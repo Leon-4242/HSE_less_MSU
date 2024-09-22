@@ -48,10 +48,13 @@ void output1m (FILE *f, prodm *w);
 void outputs (FILE *f, prod **s, int n);
 void outputsm (FILE *f, prodm **s, int n);
 
+void func (prodm **arr, int n);
+int compare(prodm **arr, int k1, int k2);
+void swap(prodm **arr, int k1, int k2);
 
 int main (void)
 {
-	int i = 0, n = 0, e_flag = 0; flag flag = { 0, 0};
+	int i = 0, n = 0, k = 0,  e_flag = 0; flag flag = { 0, 0};
 
 	prod **array = NULL;
 	prodm **arraym = NULL;
@@ -59,13 +62,32 @@ int main (void)
 	prodm *currm  = NULL;
 
 	srand(time(NULL));
-	if (input(&array, &arraym, &n, &curr, &currm, &flag)) 
+	k = input(&array, &arraym, &n, &curr, &currm, &flag);
+       	if (k == 1) 
+	{
+		return 0;
+	}
+	if (k)
 	{
 		return -1;
-	}	
-	if (output(array, arraym, n, curr, currm, flag)) 
-	{
-		e_flag = 1;
+	}
+	
+	if (flag.m + flag.s == 2) {
+		printf("\nWant to sort?\n1)Yes\n2)No\n");
+		scanf("%d", &i);
+		if (i != 1 && i!= 2) {
+			k = 1;
+		} else if (i == 1){
+			func(arraym, n);
+		}
+	}
+
+	if (!k) {
+		k = output(array, arraym, n, curr, currm, flag);
+	       	if (k == -1)	
+		{
+			e_flag = 1;
+		}
 	}
 
 	if (flag.m) 
@@ -165,7 +187,7 @@ int inputm (FILE *f, prodm ***w)
 		free (curr);
 		res = input1m(f, &curr);
 	}
-	if (res == -2)
+	if (res != -1)
 	{
 		for (i=0; i<n; i++)
 		{
@@ -177,7 +199,6 @@ int inputm (FILE *f, prodm ***w)
 		return -1;
 	}
 	free (curr->Name);
-	free (curr->Manufactory);
 	free (curr);
 	return n;
 }
@@ -215,7 +236,6 @@ prod* get (void)
 	 }
 	 w = (char*)malloc((strlen(res->Name)+1)*sizeof(char));
 	 strcpy(w, res->Name);
-	 
 	 free(res->Name);
 	 res->Name = NULL;
 	 n = rand()%10;
@@ -228,14 +248,15 @@ prod* get (void)
 	 	n--;
 	 }
 	 l = strlen(w);
-	 w = (char*)realloc(w, (strlen(w) + strlen(res->Name)+2)*sizeof(char));
-	 w[l-1] = ' ';
+	 w = (char*)realloc(w, (l + strlen(res->Name)+2)*sizeof(char));
+	 w[l] = ' ';
+	 w[l+1] = 0;
 	 strcat(w, res->Name);
 	 free (res->Name);
 	 res->Name = (char*)malloc((strlen(w)+1)*sizeof(char));
 	 strcpy(res->Name, w);
 	 l = strlen (w);
-	 res->Name[l-1] = 0;
+	 res->Name[l] = 0;
 	 free(w);
 	 fclose (inA);
 	 fclose (inN);
@@ -290,7 +311,7 @@ prodm* getm (void)
 	 res->Name = NULL;
 	 
 	 n = rand()%10;
-	 input2mm(inN, res);
+	 input2m(inN, res);
 	 while (n>0)
 	 {
 	 	free (res->Name);
@@ -299,20 +320,21 @@ prodm* getm (void)
 	 	n--;
 	 }
 	 l = strlen(w);
-	 w = (char*)realloc(w, (strlen(w) + strlen(res->Name)+2)*sizeof(char));
-	 w[l-1] = ' ';
+	 w = (char*)realloc(w, (l + strlen(res->Name)+2)*sizeof(char));
+	 w[l] = ' ';
+	 w[l+1] = 0;
 	 strcat(w, res->Name);
 	 free (res->Name);
 	 res->Name = (char*)malloc((strlen(w)+1)*sizeof(char));
 	 strcpy(res->Name, w);
 	 l = strlen (w);
-	 res->Name[l-1] = 0;
+	 res->Name[l] = 0;
 	 free(w);
 	 fclose (inA);
 	 fclose (inN);
 	 
 	 n = rand()%10;
-	 input2m(inM, res);
+	 input2mm(inM, res);
 	 while (n>0)
 	 {
 	 	free(res->Manufactory);
@@ -334,11 +356,10 @@ int input (prod ***array, prodm ***arraym, int*n, prod **curr, prodm **currm, fl
 	scanf ("%d", &(flag->s));
 	flag->s --;
 	
-	if (flag->s !=0 && flag->s != 1)
+	if (flag->s != 0 && flag->s != 1)
 	{
-		flag->m = 2;
-		return 0;
-		}
+		return 1;
+	}
 			
 	printf ("\nChoose type of input data (enter number);\n1)From file\n2)Generate\n");
 	scanf ("%d", &flag_in);
@@ -346,92 +367,100 @@ int input (prod ***array, prodm ***arraym, int*n, prod **curr, prodm **currm, fl
 	
 	if (flag_in !=0 && flag_in != 1)
 	{
-		flag->m = 2;
-		return 0;
-		}
+		return 1;
+	}
 	if (flag_in)
 	{
 		printf("\nEnter number of structures:\n");
-        scanf("%d", n);
-        if (*n == 1) 
+        	scanf("%d", n);
+		if (*n < 1) 
+		{
+			return 1;
+		}
+        	if (*n == 1) 
 		{
 			flag->m = 0;
-            if (flag->s) 
-				{
-                	*currm = getm();
-            	} 
-				else 
-				{
-                	*curr = get();
-                }
-        } 
-		else 
-		{
-        	flag->m = 1;
-        	if (flag->s) 
+		        if (flag->s) 
 			{
-                *arraym = (prodm**)malloc((*n)*sizeof(prodm*));
-                for (i = 0; i < *n; i++)
-				{
-                    (*arraym)[i] = getm();
-                }
-            } 
+        	        	*currm = getm();
+        	    	} 
 			else 
 			{
-                *array = (prod**)malloc((*n)*sizeof(prod*));
-                for (i = 0; i < *n; i++)
+        	        	*curr = get();
+        	        }
+        	} 
+		else 
+		{
+		       	flag->m = 1;
+       			if (flag->s) 
+			{
+        		        *arraym = (prodm**)malloc((*n)*sizeof(prodm*));
+        	        	for (i = 0; i < *n; i++)
 				{
-                    (*array)[i] = get();
-                }
-
-            }
-        }
+        	        		(*arraym)[i] = getm();
+        	        	}	
+        	    	} 
+			else 
+			{
+		                *array = (prod**)malloc((*n)*sizeof(prod*));
+        		        for (i = 0; i < *n; i++)
+				{
+        		            (*array)[i] = get();
+        		        }
+	
+        	    	}
+        	}
 	}
 	else 
 	{
-        printf("\nEnter name of file:\n");
-        scanf("%s", in_filename);
-        in = fopen(in_filename, "r");
-        if (in == NULL) 
+      		printf("\nEnter name of file:\n");
+        	scanf("%s", in_filename);
+        	in = fopen(in_filename, "r");
+        	if (in == NULL) 
 		{
-            printf("\nFailed to open %s.", in_filename);
-            return -1;
-        }
-        printf ("\nChoose type of data (enter number):\n1)One structer\n2)Array of structures\n");
-        scanf("%d", &(flag->m)); flag->m--;
-        if (flag->m)
+       		    printf("\nFailed to open %s.", in_filename);
+        	    return -1;
+       	 	}
+        	printf ("\nChoose type of data (enter number):\n1)One structer\n2)Array of structures\n");
+        	scanf("%d", &(flag->m)); flag->m--;
+		if (flag->m != 0 && flag->m != 1) 
 		{
-            if(flag->s)
+			fclose(in);
+			return 1;
+		}
+		if (flag->m)
+		{
+        		if(flag->s)
 			{
-                *n = inputm(in, arraym);
-            } 
+                		*n = inputm(in, arraym);
+            		} 
 			else 
 			{
-                *n = inputs(in, array);
-            }
-        } 
+	                	*n = inputs(in, array);
+	        	}
+        	} 
 		else 
 		{
-            if (flag->s) 
+            		if (flag->s) 
 			{
-                if (input1m(in, currm) != 0) 
+                		if (input1m(in, currm) != 0) 
 				{
-                    printf ("Failed to read data from file.");
-                    fclose (in);
-                    return -1;
-                }
-            } 
+                    			printf ("Failed to read data from file.");
+                    			fclose (in);
+                    			return -1;
+                		}
+            		} 
 			else 
 			{
-                if (input1(in, curr) != 0) 
+                		if (input1(in, curr) != 0) 
 				{
-                    printf ("Failed to read data from file.");
-                    fclose (in);
-                    return -1;
-            	}
-            }
-        }
-        fclose(in);
+       			        printf ("Failed to read data from file.");
+                		fclose (in);
+                		return -1;
+            			}
+            		}
+        	}
+        	fclose(in);
         }
 	return 0;
 }	
@@ -495,7 +524,8 @@ int input2 (FILE *f, prod *w)
 					printf("ERROR\n");
 					return -1;
 				}
-			 } 
+			 }
+		       		
 			 return 0;
 		}
 		else 
@@ -520,6 +550,7 @@ int input2 (FILE *f, prod *w)
 			return -1;
 		}
 	}
+
 	return 0;
 }
 
@@ -572,6 +603,7 @@ int input2m (FILE *f, prodm *w)
 			return -1;
 		}
 	}
+
 	return 0;
 }
 
@@ -627,6 +659,7 @@ int input2mm (FILE *f, prodm* w)
 			return -1;
 		}
 	}
+
 	return 0;	
 }
 
@@ -636,20 +669,24 @@ int output(prod **array, prodm **arraym, int n, prod *curr, prodm *currm, flag f
 	char out_filename[20]; int flag_out = 0;
 
 	printf ("\nEnter place for answer:\n1)Terminal    2)File\n");
-    scanf("%d", &flag_out); 
+    	scanf("%d", &flag_out); 
 	flag_out--;
 
-    if (flag_out) 
+	if (flag_out != 0 && flag_out != 1) {
+		return 1;
+	}
+    	if (flag_out) 
 	{
-        printf("\nEnter file name of file:\n");
-        scanf("%s", out_filename);
-        out = fopen(out_filename, "w");
-        if (out == NULL) 
+        	printf("\nEnter file name of file:\n");
+        	scanf("%s", out_filename);
+        	out = fopen(out_filename, "w");
+       		if (out == NULL) 
 		{
-            printf("\nFailed to open %s.", out_filename);
-            return -1;
-        }
-    }
+            		printf("\nFailed to open %s.", out_filename);
+            		return -1;
+        	}
+    	}
+
 	if (flag_out) 
 	{
 		if (flag.m) 
@@ -728,3 +765,42 @@ void outputsm (FILE *f, prodm **s, int n)
 		output1m(f, s[i]);
 	}
 }
+
+void func (prodm **arr, int n) {
+	for (int j = 0; j < n; j++) {
+		for (int i = 0; i < n-1; i++) {
+			if (compare(arr, i, i+1) == 1) {
+				swap(arr, i, i+1);
+			}
+		}
+	}
+}
+
+int compare(prodm **arr, int k1, int k2) {
+	for (size_t i = 0; i < strlen(arr[k1]->Name) && i < strlen(arr[k2]->Name); i++) {
+		if (arr[k1]->Name[i] - arr[k2]->Name[i] > 0) {
+			return 1;
+		} else if (arr[k1]->Name[i] - arr[k2]->Name[i] < 0) {
+			return -1;
+		}
+	}
+
+	for (size_t i = 0; i < strlen(arr[k1]->Manufactory) && i < strlen(arr[k2]->Manufactory); i++) {
+                if (arr[k1]->Manufactory[i] - arr[k2]->Manufactory[i] > 0) {
+                        return 1;
+                } else if (arr[k1]->Manufactory[i] - arr[k2]->Manufactory[i] < 0) {
+                        return -1;
+                }
+        }
+
+	return 0;
+}
+
+void swap(prodm **arr, int k1, int k2) {
+	prodm* tmp;
+	tmp = arr[k1];
+        arr[k1] = arr[k2];
+	arr[k2] = tmp;
+	tmp = NULL;
+}
+
