@@ -289,6 +289,7 @@ namespace cint {
 			is.get(c);
 		}
 		num = CintN(str);
+		delete[] str;
 		return is;
 	}
 //constructors
@@ -459,7 +460,10 @@ namespace cint {
 	}
 
 	bool sgn(const CintN& num) {
-		return num.getVal()[num.getN()-2] == 43 ? true : false;
+		char* tmp = num.getVal();
+		bool flag = (tmp[num.getN()-2] == 43) ? true : false;
+		delete[] tmp;
+		return flag;
 	}
 //
 
