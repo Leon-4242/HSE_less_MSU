@@ -1,4 +1,4 @@
-#include "inteface.h"
+#include "interface.h"
 
 int main(void) {
 	func();
