@@ -22,6 +22,8 @@ namespace poly {
 
 	polynom NOD (const polynom& P, const polynom& Q);
 	polynom der (const polynom& P);
+	polynom same_roots(const polynom& P);
+	
 	class polynom {
 		std::vector<Complex> coef;
 
@@ -77,6 +79,8 @@ namespace poly {
 			*this  = *this % P;
 			return *this;
 		}
+
+		Complex operator() (Complex x) const;
 	};
 
 	polynom operator+ (const polynom& P, const polynom& Q) {
@@ -221,10 +225,22 @@ namespace poly {
 		}
 		val.pop_back();
 		for (size_t i = 0; i < val.size(); ++i) {
-			val[i] *= i;
+			val[i] *= val.size()-i;
 		}
 
 		return polynom(val);
+	}
+
+	polynom same_roots(const polynom& P) {
+		return P/NOD(P, der(P));
+	}
+
+	Complex polynom::operator() (Complex x) const{
+		Complex res {};
+		for (size_t i = 0; i < coef.size(); ++i) {
+			res += coef[i]*powCI(x, coef.size()-1-i);
+		}
+		return res;
 	}
 };
 
