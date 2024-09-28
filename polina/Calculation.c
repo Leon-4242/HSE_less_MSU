@@ -14,7 +14,7 @@ int main (void)
 		{
 			break;
 		}
-		printf("\nMy arsh = %lf\n\n", function(x));
+		printf("\nMy arsh = %.12lf\n\n", function(x));
 	}
 	return 0;
 }
@@ -29,13 +29,13 @@ double function (double x)
 	}
 	if (fabs(x) < 1)
 	{
-		n = 1;
+		n = 0;
 		an = x;
-		sn = x;
+		sn = 0;
 		while (fabs(an) > eps)
 		{
-			an *=(-1)*(2*n)*pow(x, 2)*(2n-1)/(4*pow(n, 2)*(2n+1));
 			sn += an;
+			an *= ((-1)*pow(2*n+1, 2)*pow(x, 2))/(2*(n+1)*(2*n+3));
 			n++;
 		}
 		
@@ -44,6 +44,7 @@ double function (double x)
 	else
 	{
 		y = sqrt((sqrt(pow(x, 2)+1)-1)/2);
+		if (x < 0) y *= -1;
 		return 2*function(y);
 	}
 }
