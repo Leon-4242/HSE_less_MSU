@@ -13,7 +13,7 @@ namespace poly {
 	polynom operator* (const polynom& P, const polynom& Q);
 	polynom operator/ (const polynom& P, const polynom& Q);
 	polynom operator% (const polynom& P, const polynom& Q);	
-	
+
 	bool operator== (const polynom& P, const polynom& Q);
 	bool operator!= (const polynom& P, const polynom& Q);
 	
@@ -24,6 +24,7 @@ namespace poly {
 	polynom der (const polynom& P);
 	polynom same_roots(const polynom& P);
 	
+	std::string print(const polynom& P);	
 	class polynom {
 		std::vector<Complex> coef;
 
@@ -241,6 +242,15 @@ namespace poly {
 			res += coef[i]*powCI(x, coef.size()-1-i);
 		}
 		return res;
+	}
+
+	std::string print(const polynom& P) {
+		auto tmp = P.getCoef();
+		std::string str;
+
+		for (auto iter = tmp.begin(); iter != tmp.end(); ++iter) {
+			str += *iter + "*z^" + std::to_string(tmp.size)
+		}
 	}
 };
 
