@@ -24,7 +24,9 @@ namespace poly {
 	polynom der (const polynom& P);
 	polynom same_roots(const polynom& P);
 	
-	std::string print(const polynom& P);	
+	std::string print(const polynom& P);
+	
+	std::ostream& operator<< (std::ostream& os, const polynom& P);	
 	class polynom {
 		std::vector<Complex> coef;
 
@@ -44,6 +46,12 @@ namespace poly {
 				coef.push_back(0);
 			}
 		}
+
+		polynom(const polynom& P) {
+			coef.insert(coef.begin(), P.coef.begin(), P.coef.end());
+		}
+
+		polynom(const std::string& str);
 
 		std::vector<Complex> getCoef (void) const {
 			return coef;
@@ -81,8 +89,37 @@ namespace poly {
 			return *this;
 		}
 
+		friend std::istream& operator>> (std::istream& is, polynom& P);
+
 		Complex operator() (Complex x) const;
 	};
+	
+	polynom::polynom(const std::string& str) {
+		size_t buff = 
+			
+			size_t buff = str.find("z");
+			if(buff == std::string::npos) {
+			coef.push_back(str);
+		} else {
+			int tmp = 0;
+			if (buff + 1 == str.length()) {
+				coef.push_back(str.substr(0, buff));
+				coef.push_back(0);
+			} else {
+				if (str[buff+1] == '^') {
+					tmp = (int)str[buff+2] - 48;
+				}
+				coef.push_back(str.substr(0, buff));
+				for (int i = 0; i < tmp; ++i) {
+					coef.push_back(0);
+				}
+
+				polynom P(str.substr(buff+3, str.size()));
+				auto tmpp = P.getCoef();
+				coef.insert(coef.end(), tmpp.begin(), tmpp.end());
+			}
+		}
+	}
 
 	polynom operator+ (const polynom& P, const polynom& Q) {
 		auto i1 = P.getCoef().rbegin(), i2 = Q.getCoef().rbegin();
@@ -249,8 +286,31 @@ namespace poly {
 		std::string str;
 
 		for (auto iter = tmp.begin(); iter != tmp.end(); ++iter) {
-			str += *iter + "*z^" + std::to_string(tmp.size)
+			if (iter != tmp.begin()) {
+				str += "+";
+			}
+			if ((tmp.end()-iter) == 2) {
+				str += "("+print(*iter) + ")*z";
+			} else if ((tmp.end()-iter) == 1) {
+				str += "("+print(*iter) + ")";
+			} else {
+				str += "("+print(*iter) + ")*z^" + std::to_string((tmp.end()-iter)-1);
+			}
 		}
+
+		return str;
+	}
+
+	std::ostream& operator<< (std::ostream& os, const polynom& P) {
+		return os << print(P);
+	}
+
+	std::istream& operator>> (std::istream& is, polynom& P) {
+		std::string str;
+		is >> str;
+		P = polynom(str);
+
+		return is;
 	}
 };
 
