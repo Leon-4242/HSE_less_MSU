@@ -8,7 +8,6 @@ namespace InFace {
 
 	class Interface;
 
-	Interface operator+ (const Interface& I1, const Interface& I2);
 	std::string print(const Interface I);
 
 	std::ostream& operator<< (std::ostream& os, const Interface& I);
@@ -18,6 +17,8 @@ namespace InFace {
 
 		public:
 		
+		friend Interface operator+ (const Interface& I1, const Interface& I2);
+	
 		Interface(void) {}
 
 		Interface(const polynom& P) {
@@ -31,7 +32,8 @@ namespace InFace {
 		}
 		
 		Interface(const Interface& I) {
-			for (auto iter = I.vals.begin(); iter != I.vals.end(); ++iter) {
+			auto tmp = I.getVals();
+			for (auto iter = tmp.begin(); iter != tmp.end(); ++iter) {
 				vals.push_back(*iter);
 			}
 		}
@@ -48,9 +50,8 @@ namespace InFace {
 		~Interface() {}
 
 		Interface& operator= (const Interface& val) {
-			auto tmp = val.getVals();
 			vals.clear();
-			for (auto iter = tmp.begin(); iter != tmp.end(); ++iter) {
+			for (auto iter = val.vals.begin(); iter != val.vals.end(); ++iter) {
                                 vals.push_back(*iter);
                         }
 			return *this;
@@ -73,13 +74,12 @@ namespace InFace {
 	};
 	
 	Interface operator+ (const Interface& I1, const Interface& I2) {
-		auto tmp1 = I1.getVals(), tmp2 = I2.getVals();
-		
-		for (auto iter = tmp2.begin(); iter != tmp2.end(); ++iter) {
-                        tmp1.push_back(*iter);
+		auto tmp = I1.vals;
+		for (auto iter = I2.vals.begin(); iter != I2.vals.end(); ++iter) {
+                        tmp.push_back(*iter);
                 }
 
-		return Interface(tmp1);
+		return Interface(tmp);
 	}
 
 	std::string print(const Interface I) {

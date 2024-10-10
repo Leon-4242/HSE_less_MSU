@@ -6,55 +6,74 @@
 
 namespace poly {
 	using namespace comp;
-	class polynom;
 
-	polynom operator+ (const polynom& P, const polynom& Q);
-	polynom operator- (const polynom& P, const polynom& Q);
-	polynom operator* (const polynom& P, const polynom& Q);
-	polynom operator/ (const polynom& P, const polynom& Q);
-	polynom operator% (const polynom& P, const polynom& Q);	
-
-	bool operator== (const polynom& P, const polynom& Q);
-	bool operator!= (const polynom& P, const polynom& Q);
-	
-	polynom operator+ (const polynom& P);
-	polynom operator- (const polynom& P);
-
-	polynom NOD (const polynom& P, const polynom& Q);
-	polynom der (const polynom& P);
-	polynom same_roots(const polynom& P);
-	
-	std::string print(const polynom& P);
-	
-	std::ostream& operator<< (std::ostream& os, const polynom& P);	
 	class polynom {
 		std::vector<Complex> coef;
 
 		public:
+
+		friend polynom operator+ (const polynom& P, const polynom& Q);
+		friend polynom operator- (const polynom& P, const polynom& Q);
+        	friend polynom operator* (const polynom& P, const polynom& Q);
+        	friend polynom operator/ (const polynom& P, const polynom& Q);
+        	friend polynom operator% (const polynom& P, const polynom& Q);
 		
+		friend bool operator== (const polynom& P, const polynom& Q);
+        	friend bool operator!= (const polynom& P, const polynom& Q);
+	
+	        friend polynom operator+ (const polynom& P);
+	        friend polynom operator- (const polynom& P);
+
+	        friend polynom NOD (const polynom& P, const polynom& Q);
+	        friend polynom der (const polynom& P);
+        	friend polynom same_roots(const polynom& P);
+	
+		friend std::string print(const polynom& P);
+		friend std::ostream& operator<< (std::ostream& os, const polynom& P);
+
 		polynom() {
 			coef.push_back(0);
 		}
 
 		polynom(std::vector<Complex> val) {
-			coef.insert(coef.begin(), val.begin(), val.end()); 
-		}
-
-		polynom(Complex x, int n = 0) {
-			coef.push_back(x);
-			for (int i = 0; i < n; i++) {
+			bool flag = true;
+			for (auto iter = val.begin(); iter != val.end(); ++iter) {
+				if (flag) {
+					if (*iter != 0) {
+						flag = false;
+						coef.push_back(*iter);
+					}
+				} else {
+					coef.push_back(*iter);
+				}
+			}
+			if (coef.empty()) {
 				coef.push_back(0);
 			}
 		}
 
-		polynom(const polynom& P) {
-			coef.insert(coef.begin(), P.coef.begin(), P.coef.end());
+		polynom(Complex x, int n = 0) {
+			coef.push_back(x);
+			if (x != 0) {
+				for (int i = 0; i < n; i++) {
+					coef.push_back(0);
+				}
+			}
 		}
 
-		polynom(const std::string& str);
+		polynom(const polynom& P) {
+			auto tmp = P.getCoef();
+			coef.insert(coef.begin(), tmp.begin(), tmp.end());
+		}
 
 		std::vector<Complex> getCoef (void) const {
-			return coef;
+			std::vector<Complex> tmp;
+		
+			for (auto iter = coef.begin(); iter != coef.end(); ++iter) {
+				tmp.push_back(*iter);
+			}
+
+			return tmp;
 		}
 
 		polynom& operator= (const polynom& P) {
@@ -94,47 +113,20 @@ namespace poly {
 		Complex operator() (Complex x) const;
 	};
 	
-	polynom::polynom(const std::string& str) {
-		size_t buff = 
-			
-			size_t buff = str.find("z");
-			if(buff == std::string::npos) {
-			coef.push_back(str);
-		} else {
-			int tmp = 0;
-			if (buff + 1 == str.length()) {
-				coef.push_back(str.substr(0, buff));
-				coef.push_back(0);
-			} else {
-				if (str[buff+1] == '^') {
-					tmp = (int)str[buff+2] - 48;
-				}
-				coef.push_back(str.substr(0, buff));
-				for (int i = 0; i < tmp; ++i) {
-					coef.push_back(0);
-				}
-
-				polynom P(str.substr(buff+3, str.size()));
-				auto tmpp = P.getCoef();
-				coef.insert(coef.end(), tmpp.begin(), tmpp.end());
-			}
-		}
-	}
-
 	polynom operator+ (const polynom& P, const polynom& Q) {
-		auto i1 = P.getCoef().rbegin(), i2 = Q.getCoef().rbegin();
+		auto i1 = P.coef.rbegin(), i2 = Q.coef.rbegin();
 		std::vector<Complex> res; 
-		while (i1 != P.getCoef().rend() && i2 != Q.getCoef().rend()) {
+		while (i1 != P.coef.rend() && i2 != Q.coef.rend()) {
 			res.insert(res.begin(), *i1+*i2);
 			++i1; ++i2;
 		}
 
-		while (i1 != P.getCoef().rend()) {
+		while (i1 != P.coef.rend()) {
 			res.insert(res.begin(), *i1);
 			++i1;	
 		}
 
-		while (i2 != Q.getCoef().rend()) {
+		while (i2 != Q.coef.rend()) {
                         res.insert(res.begin(), *i2);
                         ++i2;
                 }
@@ -143,19 +135,20 @@ namespace poly {
 	}
 
 	polynom operator- (const polynom& P, const polynom& Q) {
-		auto i1 = P.getCoef().rbegin(), i2 = Q.getCoef().rbegin();
-                std::vector<Complex> res;
-                while (i1 != P.getCoef().rend() && i2 != Q.getCoef().rend()) {
+                auto i1 = P.coef.rbegin(), i2 = Q.coef.rbegin();
+                
+		std::vector<Complex> res;
+                while (i1 != P.coef.rend() && i2 != Q.coef.rend()) {
                         res.insert(res.begin(), *i1-*i2);
                         ++i1; ++i2;
                 }
 
-                while (i1 != P.getCoef().rend()) {
+                while (i1 != P.coef.rend()) {
                         res.insert(res.begin(), *i1);
                         ++i1;
                 }
 
-                while (i2 != Q.getCoef().rend()) {
+                while (i2 != Q.coef.rend()) {
                         res.insert(res.begin(), -*i2);
                         ++i2;
                 }
@@ -180,7 +173,7 @@ namespace poly {
 	}
 
 	polynom operator* (const polynom& P, const polynom& Q) {
-		auto val1 = P.getCoef(), val2 = Q.getCoef();
+		auto val1 = P.coef, val2 = Q.coef;
 
 		if (val1.size() == 1) {
 			for (auto iter = val2.begin(); iter != val2.end(); ++iter) {
@@ -200,12 +193,12 @@ namespace poly {
 	}
 
 	polynom operator/ (const polynom& P, const polynom& Q) {
-		size_t deg1 = P.getCoef().size(), deg2 = Q.getCoef().size();
+		size_t deg1 = P.coef.size()-1, deg2 = Q.coef.size()-1;
 		if (deg1 < deg2) {
 			return polynom();
 		}
 
-		polynom q1(P.getCoef()[0]/Q.getCoef()[0], deg1-deg2);
+		polynom q1(P.coef[0]/Q.coef[0], deg1-deg2);
 		polynom r1 = P-Q*q1;
 		return q1+(r1/Q);
 	}
@@ -215,12 +208,12 @@ namespace poly {
 	}
 	
 	bool operator== (const polynom& P, const polynom& Q) {
-		if (P.getCoef().size() != Q.getCoef().size()) {
+		if (P.coef.size() != Q.coef.size()) {
 			return false;
 		}
 
-		for (size_t i = 0; i < P.getCoef().size(); ++i) {
-			if (P.getCoef()[i] != Q.getCoef()[i]) {
+		for (size_t i = 0; i < P.coef.size(); ++i) {
+			if (P.coef[i] != Q.coef[i]) {
 				return false;
 			}
 		}
@@ -233,10 +226,10 @@ namespace poly {
 	}
 
 	polynom operator+ (const polynom& P) {
-		return polynom(P.getCoef());
+		return polynom(P.coef);
 	}
         polynom operator- (const polynom& P) {
-		auto val = P.getCoef();
+		auto val = P.coef;
 		for (auto iter = val.begin(); iter != val.end(); ++iter) {
 			*iter *= -1.;
 		}
@@ -245,11 +238,11 @@ namespace poly {
 	}
 
 	polynom NOD (const polynom& P, const polynom& Q) {
-		if (P.getCoef().size() < Q.getCoef().size()) {
+		if (P.coef.size() < Q.coef.size()) {
 			return NOD(Q, P);
 		}
 		if (P%Q == polynom()) {
-			return polynom(Q.getCoef());
+			return polynom(Q.coef);
 		}
 		// P = (P/Q) *Q + (P%Q)
 		// NOD(P, Q) = NOD (P%Q, Q);
@@ -257,13 +250,13 @@ namespace poly {
 	}
 
 	polynom der (const polynom& P) {
-		auto val = P.getCoef();
-		if (val.size() == 1) {
+		auto val = P.coef;
+		if (val.size() <= 1) {
 			return polynom();
 		}
 		val.pop_back();
 		for (size_t i = 0; i < val.size(); ++i) {
-			val[i] *= val.size()-i;
+			val[i] *= (int)(val.size()-i);
 		}
 
 		return polynom(val);
@@ -282,19 +275,18 @@ namespace poly {
 	}
 
 	std::string print(const polynom& P) {
-		auto tmp = P.getCoef();
 		std::string str;
 
-		for (auto iter = tmp.begin(); iter != tmp.end(); ++iter) {
-			if (iter != tmp.begin()) {
+		for (auto iter = P.coef.begin(); iter != P.coef.end(); ++iter) {
+			if (iter != P.coef.begin()) {
 				str += "+";
 			}
-			if ((tmp.end()-iter) == 2) {
+			if ((P.coef.end()-iter) == 2) {
 				str += "("+print(*iter) + ")*z";
-			} else if ((tmp.end()-iter) == 1) {
+			} else if ((P.coef.end()-iter) == 1) {
 				str += "("+print(*iter) + ")";
 			} else {
-				str += "("+print(*iter) + ")*z^" + std::to_string((tmp.end()-iter)-1);
+				str += "("+print(*iter) + ")*z^" + std::to_string((P.coef.end()-iter)-1);
 			}
 		}
 
@@ -306,9 +298,38 @@ namespace poly {
 	}
 
 	std::istream& operator>> (std::istream& is, polynom& P) {
-		std::string str;
-		is >> str;
-		P = polynom(str);
+		int deg;
+		is >> deg;
+		P.coef.clear();
+		if (deg == 0) {
+			P.coef.push_back(0);
+			return is;
+		}
+		Complex tmp;
+		for (int i = 0; i < deg+1; ++i) {
+			is >> tmp;
+		       	P.coef.push_back(tmp);
+		}
+		size_t counter = 0;
+		for(auto iter = P.coef.begin(); iter != P.coef.end(); ++iter) {
+			if (*iter == 0) {
+				counter++;
+			} else {
+				break;
+			}
+		}
+		if (counter == P.coef.size()) {
+			P.coef.clear();
+			P.coef.push_back(0);
+			return is;
+		}
+
+		std::vector<Complex> buff;
+		for (auto iter = P.coef.begin() +counter; iter != P.coef.end(); ++iter) {
+			buff.push_back(*iter);
+		}
+		buff.swap(P.coef);
+		buff.clear();
 
 		return is;
 	}

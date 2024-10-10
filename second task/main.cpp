@@ -21,14 +21,14 @@ int main(void) {
 			if (I.empty()) {
 				cout << "\nNot enough data" << endl;
 			} else {
-				cout << "\nEnter action with polynoms:\n1)add\n2)substract\n3)multiplication\n4)derivative\n5)polynom_same_roots" << endl;
+				cout << "\nEnter action with polynoms:\n1)add\n2)substract\n3)multiplication\n4)division\n5)GCD\n6)derivative\n7)polynom_same_roots" << endl;
 				cin >> act;
-				if (act != 1 && act != 2 && act != 3 && act != 4 && act != 5) {
+				if (act != 1 && act != 2 && act != 3 && act != 4 && act != 5 && act != 6 && act != 7) {
 					break;
 				}
 				
-				cout << "\nEnter" << ((act == 4 || act == 5 ) ? "number" : "numbers") << "of polynoms for action:" << endl;
-				(act == 4 || act == 5) ? cin >> n : cin >> n >> m;
+				cout << "\nEnter" << ((act == 6 || act == 7 ) ? "number" : "numbers") << "of polynoms for action:" << endl;
+				(act == 6 || act == 7) ? cin >> n : cin >> n >> m;
 				
 				cout << "\nChoose way to result:\n1)Print\n2)Save\n3)Print and save" << endl;
 				cin >> way;
@@ -36,11 +36,11 @@ int main(void) {
 					break;
 				}
 
-				if (act== 4 || act == 5) {
+				if (act== 6 || act == 7) {
 					if (n >= I.size()) {
 						cout << "\nIncorrect" << endl;
 					} else {
-						if (act == 1) {
+						if (act == 6) {
 							P = der(I[n]);
 						} else {
 							P = same_roots(I[n]);
@@ -63,9 +63,15 @@ int main(void) {
 						} else if (act == 2) {
 							op = "-";
 							P = I[n] - I[m];
-						} else {
+						} else if (act == 3) {
 							op = "*";
 							P = I[n]*I[m];
+						} else if (act == 4) {
+							op = "/";
+							P = I[n]/I[m];
+						} else if (act == 5) {
+							op = " LCD ";
+							P = NOD(I[n], I[m]);
 						}
 
 						if (way == 1 || way == 3) {
