@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <iostream>
+#include <string>
 
 namespace comp {
 
@@ -19,7 +20,13 @@ namespace comp {
 
 	bool operator== (const Complex& z1, const Complex& z2);
 	bool operator!= (const Complex& z1, const Complex& z2);
+	bool operator< (const Complex& z1, const Complex& z2);	
+	bool operator<= (const Complex& z1, const Complex& z2);
+	bool operator> (const Complex& z1, const Complex& z2);
+	bool operator>= (const Complex& z1, const Complex& z2);
 
+
+	std::string print(const Complex& z);
 	std::ostream& operator<< (std::ostream& os, const Complex& z);
 
 	Complex rev(const Complex& z);
@@ -27,6 +34,7 @@ namespace comp {
 	double mod(const Complex& z);
 	double arg(const Complex& z);
 	Complex powCI(const Complex& base, const int& exp);
+	
 	class Complex {
 		double x, y;
 	
@@ -36,6 +44,8 @@ namespace comp {
 		Complex(double a, double b = 0): x(a), y(b) {}
 	
 		Complex(const Complex& z): x(z.x), y(z.y) {}
+		
+		Complex(const std::string str);
 
 		~Complex() {};
 		

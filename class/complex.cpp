@@ -1,5 +1,21 @@
 #include "complex.h"
 namespace comp {
+	Complex::Complex(const std::string str) {
+		size_t tmp = str.find("+");
+                if (tmp == std::string::npos) {
+                        x = stod(str);
+			y = 0;
+                } else {
+                        x = stod(str.substr(0, tmp));
+                        size_t buff = str.find("i", tmp);
+                        if (buff == std::string::npos) {
+                                exit(-1);
+                        }
+                        auto curr = ((buff-tmp == 1) ? buff : tmp ) + 1;
+                        y = stod(str.substr(curr, str.size()-curr ));
+                }
+	}
+
 	Complex operator+ (const Complex& z1, const Complex& z2) {
 		return Complex(z1.real()+z2.real(), z1.imag() + z2.imag()); 
 	}
@@ -31,13 +47,39 @@ namespace comp {
 	bool operator!= (const Complex& z1, const Complex& z2) {
 		return !(z1 == z2);
 	}
+	
+	bool operator< (const Complex& z1, const Complex& z2) {
+		return (z1.real() < z2.real() && z1.imag() < z2.imag());
+	}
+
+        bool operator<= (const Complex& z1, const Complex& z2) {
+		return z1 == z2 || z1 < z2;
+	}
+
+        bool operator> (const Complex& z1, const Complex& z2) {
+		return !(z1 <= z2);
+	}
+
+        bool operator>= (const Complex& z1, const Complex& z2) {
+		return !(z1 < z2);
+	}
+
+	std::string print(const Complex& z) {
+		std::string str;
+		str.append(std::to_string(z.real()));
+		if (!(z.imag() < eps)) {
+			str.append("+i*("+std::to_string(z.imag()) + ")");
+		}
+		return str;
+	}
 
 	std::ostream& operator<< (std::ostream& os, const Complex& z) {
-		return os <<"(" << z.real() << "+i" << z.imag() << ")";
+		return os <<"(" << print(z) << ")";
 	}
 
 	std::istream& operator>> (std::istream& is, Complex& z) {
-		return is  >> z.x >> z.y;  
+		is >> z.x >> z.y;
+		return is;
 	}
 
 	 Complex rev(const Complex& z) {
