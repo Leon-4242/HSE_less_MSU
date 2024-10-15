@@ -24,7 +24,10 @@ namespace InFace {
 		Interface(const polynom& P) {
 			vals.push_back(P);
 		}
-
+		Interface(Interface&& I) {
+			vals.swap(I.vals);
+			I.vals.clear();
+		}
 		Interface(const std::vector<polynom> value) {
 			for (auto iter = value.begin(); iter != value.end(); ++iter) {
                                 vals.push_back(*iter);
@@ -54,6 +57,12 @@ namespace InFace {
 			for (auto iter = val.vals.begin(); iter != val.vals.end(); ++iter) {
                                 vals.push_back(*iter);
                         }
+			return *this;
+		}
+
+		Interface& operator= (Interface&& val) {
+			vals.swap(val.vals);
+			val.vals.clear();
 			return *this;
 		}
 

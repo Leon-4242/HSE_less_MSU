@@ -35,6 +35,11 @@ namespace poly {
 			coef.push_back(0);
 		}
 
+		polynom(polynom&& P) {
+			coef.swap(P.coef);
+			P.coef.clear();
+		}
+
 		polynom(std::vector<Complex> val) {
 			bool flag = true;
 			for (auto iter = val.begin(); iter != val.end(); ++iter) {
@@ -77,9 +82,14 @@ namespace poly {
 		}
 
 		polynom& operator= (const polynom& P) {
-			auto tmp = P.getCoef();
 			coef.clear();
-			coef.insert(coef.begin(), tmp.begin(), tmp.end());
+			coef.insert(coef.begin(), P.coef.begin(), P.coef.end());
+			return *this;
+		}
+		
+		polynom& operator= (polynom&& P) {
+			coef.swap(P.coef);
+			P.coef.clear();
 			return *this;
 		}
 
