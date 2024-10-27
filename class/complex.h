@@ -1,7 +1,7 @@
 #ifndef complexx
 #define complexx
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <string>
 
@@ -46,6 +46,12 @@ namespace comp {
 		Complex(const Complex& z): x(z.x), y(z.y) {}
 		
 		Complex(const std::string str);
+		
+		Complex(Complex&& mv) {
+			x = mv.x;
+			y = mv.y;
+			mv.x = mv.y = 0;
+		}
 
 		~Complex() {};
 		
@@ -59,6 +65,12 @@ namespace comp {
 			
 		Complex& operator= (const Complex& z) {
 			x = z.x; y = z.y;
+			return *this;
+		}
+
+		Complex& operator= (Complex&& mv) {
+			x = mv.x; y = mv.y;
+			mv.x = mv.y = 0;
 			return *this;
 		}
 

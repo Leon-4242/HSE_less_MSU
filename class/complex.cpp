@@ -66,9 +66,9 @@ namespace comp {
 
 	std::string print(const Complex& z) {
 		std::string str;
-		str.append(std::to_string(z.real()));
-		if (!(z.imag() < eps)) {
-			str.append("+i*("+std::to_string(z.imag()) + ")");
+		str += std::to_string(z.real());
+		if (fabs(z.imag()) > eps) {
+			str += "+i*("+std::to_string(z.imag()) + ")";
 		}
 		return str;
 	}
@@ -83,11 +83,10 @@ namespace comp {
 	}
 
 	 Complex rev(const Complex& z) {
-                 Complex z1 = conj(z);
-                 if (mod(z1) < eps) {
+                 if (mod(z) < eps || mod(z)*mod(z) < eps) {
                          exit(-1);
                  }
-                 return Complex(z1.real()/mod(z1), z1.imag()/mod(z1));
+                 return Complex(z.real()/(mod(z)*mod(z)), -z.imag()/(mod(z)*mod(z)));
          }
 
          Complex conj (const Complex& z) {
@@ -99,10 +98,10 @@ namespace comp {
          }
 
          double arg(const Complex& z) {
-                 if (mod(z) < eps) {
-                         return 0;
+                 if (fabs(z.real()) < eps) {
+                         return M_PI/2;
                  }
-                 return(acos(z.real()/(mod(z))));
+                 return atan2(z.imag(), z.real()) ;
          }
 
 	Complex powCI(const Complex& base, const int& exp) {
