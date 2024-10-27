@@ -13,11 +13,12 @@ int main(void) {
 		return -1;
 	}
 
-	if (feof(fin)) {
+	if (fscanf(fin, "%lf", %curr) < 1) {
 		fclose(fin);
 		fclose(fout);
 		return 0;
 	}
+	s += curr;
 
 	while (fscanf(fin, "%lf", &curr) == 1) {
 		res += s*curr;
