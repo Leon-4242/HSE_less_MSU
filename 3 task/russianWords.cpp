@@ -95,7 +95,7 @@ int main() {
         cout << wordsFreq[i].second << "\t" << wordsFreq[i].first << endl;
     }
     
-    cout << "Total number of different words in a text: " << 
+    cout << "Total number of different pairs in a text: " << 
         wordsFreq.size() << endl;
     return 0;
 }
