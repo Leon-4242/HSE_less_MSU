@@ -1,51 +1,97 @@
-#include "LIB.h"
+#ifndef COMPLEX
+#define COMPLEX
 
-namespace EXCEPT {
-	const char* Except::what() const noexcept {
-		return message.c_str();
-	}
-
-	Except::Except(const std::string text): message(text) { }
-
-	Except::~Except() {	}
-    
-}
-
-namespace CMP {
-	int cmp (const std::string str1, const std::string str2) {
-        if (cmplen(str1, str2) != 0) return cmplen(str1, str2);
-        if (str1 > str2) return 1;
-        if (str1 < str2) return -1;
-
-        return 0;
-    }
-    
-    int cmplen (const std::string str1, const std::string str2) {
-        if (str1.length() < str2.length()) return -1;
-        if (str1.length() > str2.length()) return 1;
-        return 0;
-    }
-    
-}
-
+#include <cmath>
+#include <iostream>
+#include <string>
 
 namespace comp {
-	Complex::Complex(const std::string str) {
-		size_t tmp = str.find("+");
-                if (tmp == std::string::npos) {
-                        x = stod(str);
-			y = 0;
-                } else {
-                        x = stod(str.substr(0, tmp));
-                        size_t buff = str.find("i", tmp);
-                        if (buff == std::string::npos) {
-                                exit(-1);
-                        }
-                        auto curr = ((buff-tmp == 1) ? buff : tmp ) + 1;
-                        y = stod(str.substr(curr, str.size()-curr ));
-                }
-	}
 
+	constexpr double eps = 1e-12;
+	
+	class Complex {
+		double x, y;
+	
+		public:
+		Complex(): x(0.), y(0.) {}
+		
+		Complex(double a, double b = 0): x(a), y(b) {}
+	
+		Complex(const Complex& z): x(z.x), y(z.y) {}
+		
+		Complex(Complex&& mv) {
+			x = mv.x;
+			y = mv.y;
+			mv.x = mv.y = 0;
+		}
+
+		~Complex() {};
+		
+		double real(void) const {
+			return x;
+		}
+
+		double imag(void) const {
+			return y;
+		}
+			
+		Complex& operator= (const Complex& z) {
+			x = z.x; y = z.y;
+			return *this;
+		}
+
+		Complex& operator= (Complex&& mv) {
+			x = mv.x; y = mv.y;
+			mv.x = mv.y = 0;
+			return *this;
+		}
+		
+		friend Complex operator+ (const Complex& z1, const Complex& z2);
+		friend Complex operator- (const Complex& z1, const Complex& z2);
+		friend Complex operator* (const Complex& z1, const Complex& z2);
+		friend Complex operator/ (const Complex& z1, const Complex& z2);
+		friend Complex operator- (const Complex& z);
+		friend Complex operator+ (const Complex& z);
+
+		friend bool operator== (const Complex& z1, const Complex& z2);
+		friend bool operator!= (const Complex& z1, const Complex& z2);
+		friend bool operator< (const Complex& z1, const Complex& z2);	
+		friend bool operator<= (const Complex& z1, const Complex& z2);
+		friend bool operator> (const Complex& z1, const Complex& z2);
+		friend bool operator>= (const Complex& z1, const Complex& z2);
+
+		friend std::string print(const Complex& z);
+		friend std::ostream& operator<< (std::ostream& os, const Complex& z);
+		friend std::istream& operator>> (std::istream& is, Complex& z);
+
+		friend Complex rev(const Complex& z);
+		friend Complex conj (const Complex& z);
+		friend double mod(const Complex& z);
+		friend double arg(const Complex& z);
+		friend Complex powCI(const Complex& base, const int& exp);
+
+		Complex& operator+= (const Complex& z) {
+			*this = *this + z;
+			return *this;
+		}
+
+		Complex& operator-= (const Complex& z) {
+			*this = *this - z;
+			return *this;
+		}
+	
+		Complex& operator*= (const Complex& z) {
+			*this = (*this)*z;
+			return *this;
+		}
+
+		Complex& operator/= (const Complex& z) {
+			*this = *this/z;
+			return *this;
+		}
+	};
+	
+	
 	Complex operator+ (const Complex& z1, const Complex& z2) {
 		return Complex(z1.real()+z2.real(), z1.imag() + z2.imag()); 
 	}
@@ -149,3 +195,4 @@ namespace comp {
 		return y;
 	}
 }
+#endif
