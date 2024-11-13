@@ -1,7 +1,7 @@
 #include "Bezie.h"
 
 namespace Bezie {
-    Point BezieLine(const std::vector<Point>& points, const size_t k1, const size_t k2, const double t) {
+Point BezieLine(const std::vector<Point> points, const size_t k1, const size_t k2, const double t) {
         if (k1 == k2) {
             return points[k1];
         }

@@ -11,6 +11,29 @@ namespace R2Geometry {
     class Point;
     class Vector;
 
+    Vector operator+ (const Vector& u, const Vector& v);
+    Vector operator- (const Vector& u, const Vector& v);
+    Point operator+ (const Vector& v, const Point& p);
+    Vector operator+(const Vector& v);
+    Vector operator-(const Vector& v);
+
+    double operator*(const Vector& u, const Vector v);
+
+    Vector operator*(const Vector& v, const double c);
+    Vector operator*(const double c, const Vector& v);
+
+    Point operator* (const double c, const Point& p);
+    Point operator* (const Point& p, const double c);
+
+    Vector RVector (const Point& p);
+
+    Point operator+ (const Point& p, const Vector& v);
+    Point operator+ (const Point& p, const Point& q);
+    Vector operator- (const Point& p, const Point& q);
+
+    Point RPoint (const Vector& v);
+
+
     class Point {
         double x;
         double y;
@@ -54,15 +77,7 @@ namespace R2Geometry {
         double Y(void) const {
             return y;
         }
-
-        Point operator* (const double c) const {
-            return Point(c*x, c*y);
-        }
-
-        Point operator+ (const Point& p) const {
-            return Point (x + p.x, y + p.y);
-        }
-    };
+	};
 
     class Vector {
         double x;
@@ -155,29 +170,6 @@ namespace R2Geometry {
         }
     };
 
-    Vector operator*(const double c, const Vector& v) {
-        return Vector(c*v.X(), c*v.Y());
-    }
-
-    Point operator* (const double c, const Point& p) {
-        return Point(c*p.X(), c*p.Y());
-    }
-
-    Vector RVector (const Point& p) {
-        return Vector(p.X(), p.Y());
-    }
-
-    Point operator+ (const Point& p, const Vector& v) {
-        return Point(p.X()+v.X(), p.Y()+v.Y());
-    }
-
-    Vector operator- (const Point& p, const Point& q) {
-        return Vector(p.X()-q.X(), p.Y()-q.Y());
-    }
-
-    Point RPoint (const Vector& v) {
-        return Point(v.X(), v.Y());
-    }
 }
 
 #endif
