@@ -3,6 +3,9 @@
 
 #include <type_traits>
 #include <iostream>
+#include <fstream>
+#include <ctime>
+#include <cstdlib>
 #include "EXCEPT.h"
 
 namespace INTERFACE {
@@ -62,17 +65,58 @@ namespace INTERFACE {
 			return vars[k];
 		}
 	
-		void add (void) {
-			T tmp;
-			std::cout <<"\nEnter " << T::name() << ":" << std::endl;
-			std::cin >> tmp;
-			*this += tmp; 
+		bool add (void) {
+            int way = 0;
+            std::cout <<"\nChoose way for input:\n1)Console\n2)File\n3)Generate" << std::endl;
+			std::cin >> way;
+            if (way != 1 && way != 2 && way != 3) return true;
+            T tmp;
+            if (way == 1) {
+	    		std::cout <<"\nEnter " << T::name() << ":" << std::endl;
+			    std::cin >> tmp;
+            } else if (way == 2) {
+                std::string filename;
+                std::cout << "\nEnter filename:" << std::endl;
+                std::cin >> filename;
+                std::ifstream file; file.open(filename, std::ios::in);
+                if (file.is_open()) {
+                    file >> tmp;
+                } else {
+                    return true;
+                }
+            } else {
+                srand((int)time(NULL));
+                tmp.generate();
+            }
+
+            *this += tmp;
+            return false; 
 		}
     
-		void print (void) {
-			for (size_t i = 0; i < num; ++i) {
-			    std::cout << "\n" << T::name() << " number " << i << ":\n" << vars[i] << std::endl;
-			}
+		bool print (void) {
+            int way = 0;
+            std::cout <<"\nChoose way for data:\n1)Console\n2)File" << std::endl;
+            std::cin >> way;
+            if (way != 1 && way != 2) return true;
+            if (way == 1) {
+        	    for (size_t i = 0; i < num; ++i) {
+			        std::cout << "\n" << T::name() << " number " << i << ":\n" << vars[i] << std::endl;
+			    }
+            } else {
+                std::string filename;
+                std::cout << "\nEnter filename:" << std::endl;
+                std::cin >> filename;
+                std::ofstream file; file.open(filename, std::ios::out);
+                if (file.is_open()) {
+        	        for (size_t i = 0; i < num; ++i) {
+			            file << "\n" << T::name() << " number " << i << ":\n" << vars[i] << "\n";
+			        }
+                } else {
+                    return true;
+                }
+            }
+
+            return false;
 		}
 
 		virtual bool action (void) {
@@ -90,11 +134,11 @@ namespace INTERFACE {
 		        }
 	            if (act == 1) {
 	                
-	                this->add();
+	                if(this->add()) break;
 	
 	            } else if (act == 2) {
             
-	                this->print();
+	                if (this->print()) break;
 	            
 	            } else {
 	                if (this->action()) break;

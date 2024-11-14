@@ -11,6 +11,9 @@ namespace LIST {
 	template <typename T>
 	class List;
     
+    template <typename T>
+    T generateType (void);
+
 	template <typename T>
 	std::ostream& operator<< (std::ostream&, const List<T>&);
     template <typename T>
@@ -358,6 +361,14 @@ namespace LIST {
 			return std::string("List");
 		}
 
+		void generate(void) {
+            this->clear();
+
+            size_t num = rand()%50 +1;
+            for (size_t i = 0; i < num; ++i) {
+                this->pushBack(generateType<T>());
+            }
+        }
     };
     
 	template <typename T>

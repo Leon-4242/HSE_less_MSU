@@ -572,7 +572,7 @@ namespace LIST {
     }
 }
 
-namespace comp {
+namespace COMPLEX{ 
 
 	constexpr double eps = 1e-12;
 	
