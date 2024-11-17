@@ -6,34 +6,70 @@
 
 #define EPS 1e-12
 
+    Vector operator- (const Vector& u, const Vector& v) {
+        return Vector(u.X()-v.X(), u.Y()-v.Y());
+    }
+
+    Point operator+ (const Vector& v, const Point& p) {
+        return Point(v.X()+p.X(), v.Y()+p.Y());
+    }
+
+    Vector operator+(const Vector& v) {
+        return Vector(v.X(), v.Y());
+    }
+
+    Vector operator-(const Vector& v) {
+        return Vector(-v.X(), -v.Y());
+    }
+
+    double operator*(const Vector& u, const Vector v) {
+        return u.X()*v.X()+u.Y()*v.Y();
+    }
+
+    Vector operator*(const Vector& v, const double c) {
+        return Vector(c*v.X(), c*v.Y());
+    }
+
+    Vector operator*(const double c, const Vector& v) {
+        return Vector(c*v.X(), c*v.Y());
+    }
+
+    Point operator* (const double c, const Point& p) {
+        return Point(c*p.X(), c*p.Y());
+    }
+
+    Point operator* (const Point& p, const double c) {
+        return Point(c*p.X(), c*p.Y());
+    }
+
+    Vector RVector (const Point& p) {
+        return Vector(p.X(), p.Y());
+    }
+
+    Point operator+ (const Point& p, const Vector& v) {
+        return Point(p.X()+v.X(), p.Y()+v.Y());
+    }
+
+    Point operator+ (const Point& p, const Point& q) {
+        return Point (q.X() + p.X(), q.Y() + p.Y());
+    }
+
+    Vector operator- (const Point& p, const Point& q) {
+        return Vector(p.X()-q.X(), p.Y()-q.Y());
+    }
+
+    Point RPoint (const Vector& v) {
+        return Point(v.X(), v.Y());
+    }	
 namespace Geometry {
     template <typename T>
     class Point;
     template <typename T>
     class Vector;
 
-    Vector<T> operator+ (const Vector<T>& u, const Vector<T>& v);
-    Vector operator- (const Vector& u, const Vector& v);
-    Point operator+ (const Vector& v, const Point& p);
-    Vector operator+(const Vector& v);
-    Vector operator-(const Vector& v);
-
-    double operator*(const Vector& u, const Vector v);
-
-    Vector operator*(const Vector& v, const double c);
     Vector operator*(const double c, const Vector& v);
 
     Point operator* (const double c, const Point& p);
-    Point operator* (const Point& p, const double c);
-
-    Vector toVector (const Point& p);
-
-    Point operator+ (const Point& p, const Vector& v);
-    Point operator+ (const Point& p, const Point& q);
-    Vector operator- (const Point& p, const Point& q);
-
-    Point toPoint (const Vector& v);
-
 
     class Point {
         double x;
@@ -78,6 +114,12 @@ namespace Geometry {
         double Y(void) const {
             return y;
         }
+        
+        Point operator+ (const Point& p, const Vector& v);
+    	Point operator+ (const Point& p, const Point& q);
+    	Vector operator- (const Point& p, const Point& q);
+        Point operator* (const Point& p, const double c);
+        Vector toVector (const Point& p);
 	};
 
     class Vector {
@@ -169,6 +211,19 @@ namespace Geometry {
             x /= len; y /= len;
             return *this;
         }
+        
+       	Vector operator+ (const Vector& u, const Vector& v) {
+    	    return Vector(u.X()+v.X(), u.Y()+v.Y());
+		}
+	    Vector operator- (const Vector& u, const Vector& v);
+	    Point operator+ (const Vector& v, const Point& p);
+	    Vector operator+(const Vector& v);
+	    Vector operator-(const Vector& v);
+	    
+	    double operator*(const Vector& u, const Vector v);
+
+	    Vector operator*(const Vector& v, const double c);
+	    Point toPoint (const Vector& v);
     };
 
 }
