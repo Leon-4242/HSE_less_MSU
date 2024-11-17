@@ -31,7 +31,7 @@ namespace INTERFACE {
 			vars[0] = curr;
 		}
 
-		~InFace (void) {
+		virtual ~InFace (void) {
 			delete[] vars;
 		}
 
@@ -66,7 +66,7 @@ namespace INTERFACE {
 		}
 	
 		bool add (void) {
-            int way = 0;
+            int way = 0, n = 0;
             std::cout <<"\nChoose way for input:\n1)Console\n2)File\n3)Generate" << std::endl;
 			std::cin >> way;
             if (way != 1 && way != 2 && way != 3) return true;
@@ -86,7 +86,10 @@ namespace INTERFACE {
                 }
             } else {
                 srand((int)time(NULL));
-                tmp.generate();
+                std::cout <<"\nEnter number of fields:" << std::endl;
+                std::cin >> n;
+                if (n < 0) return true;
+                tmp.generate(n);
             }
 
             *this += tmp;
