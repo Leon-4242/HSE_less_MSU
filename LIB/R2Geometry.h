@@ -7,11 +7,12 @@
 #define EPS 1e-12
 
 namespace Geometry {
-
+    template <typename T>
     class Point;
+    template <typename T>
     class Vector;
 
-    Vector operator+ (const Vector& u, const Vector& v);
+    Vector<T> operator+ (const Vector<T>& u, const Vector<T>& v);
     Vector operator- (const Vector& u, const Vector& v);
     Point operator+ (const Vector& v, const Point& p);
     Vector operator+(const Vector& v);
