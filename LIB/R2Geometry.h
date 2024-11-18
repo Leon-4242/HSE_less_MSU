@@ -60,63 +60,94 @@
 
     Point RPoint (const Vector& v) {
         return Point(v.X(), v.Y());
-    }	
+    }
+
 namespace Geometry {
+    template <typename T, size_t n>
+    class 
     template <typename T>
     class Point;
+
     template <typename T>
-    class Vector;
+    class Vector {
+        std::vector<T> data;
+    }
 
     Vector operator*(const double c, const Vector& v);
 
     Point operator* (const double c, const Point& p);
 
+    template <typename T>
     class Point {
-        double x;
-        double y;
-    
+        template <typename K>
+        friend class Vector;
+
+        std::vector<T> data;
         public:
     
-        Point(double xx = 0, double yy = 0) {
-            if (fabs(xx) < EPS) x = 0;
-            else x = xx;
-
-            if (fabs(yy) < EPS) y = 0;
-            else y = yy; 
+        Point (const double c = 0.) {
+            double tmp = 0.;
+            if (!(fabs(c) < EPS)) tmp = c;
+            data(n, tmp);
         }
         
+        Point (const std::vector<T> value) {
+            data.assign(value.begin(), value.end());
+        }
+
         Point(const Point& p) {
-            x = p.x;
-            y = p.y;
+            data.assign(p.data.begin(), p.data.end());
         }
 
         Point(Point&& p) {
-            x = p.x; p.x = 0;
-            y = p.y; p.y = 0;
+            data.clear();
+            data.swap(p.data);
         }
 
         Point& operator= (const Point& p) {
-            x = p.x;
-            y = p.y;
+            data.assign(p.data.begin(), p.data.end());
             return *this;
         }
 
         Point& operator= (Point&& p) {
-            x = p.x; p.x = 0;
-            y = p.y; p.y = 0;
+            data.clear();
+            data.swap(p.data);
             return *this;
         }
     
-        double X(void) const {
-            return x;
+        T& operator[] (const size_t k) {
+            if(k >= data.length()) throw Except("out of range");
+            return data[k];
         }
 
-        double Y(void) const {
-            return y;
+        T operator[] (const size_t k) const {
+            if (k >= data.length()) throw Except("out of range");
+            return data[k];
         }
-        
-        Point operator+ (const Point& p, const Vector& v);
-    	Point operator+ (const Point& p, const Point& q);
+
+        Point operator+ (const Point<T>& p) const {
+            if (data.length() != p.data.length()) throw Except("not same dimensions");
+            Point<T> res;
+            for (size_t i = 0; i < data.length; ++i) res.data[i] =data[i] + p.data[i];
+            return res;
+        }
+
+        Point& operator+= (const Point<T>& p) {
+            *this = *this + p;
+            return *this;
+        }
+
+        Point operator+ (const Vector<T>& v) const {
+            if (data.length() != v.data.length()) throw Except("not same dimensions");
+            Point<T> res;
+            for (size_t i = 0; i < data.length(); ++i) res.data[i] = data[i] + v.data[i];
+        }
+
+        Point& operator+= (const Vector<T>& v) {
+            *this = *this + v;
+            return *this;
+        }
+
     	Vector operator- (const Point& p, const Point& q);
         Point operator* (const Point& p, const double c);
         Vector toVector (const Point& p);
