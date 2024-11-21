@@ -3,260 +3,114 @@
 
 #include <iostream>
 #include <cmath>
+#include <vector>
+#include "EXCEPT.h"
 
 #define EPS 1e-12
 
-    Vector operator- (const Vector& u, const Vector& v) {
-        return Vector(u.X()-v.X(), u.Y()-v.Y());
-    }
-
-    Point operator+ (const Vector& v, const Point& p) {
-        return Point(v.X()+p.X(), v.Y()+p.Y());
-    }
-
-    Vector operator+(const Vector& v) {
-        return Vector(v.X(), v.Y());
-    }
-
-    Vector operator-(const Vector& v) {
-        return Vector(-v.X(), -v.Y());
-    }
-
-    double operator*(const Vector& u, const Vector v) {
-        return u.X()*v.X()+u.Y()*v.Y();
-    }
-
-    Vector operator*(const Vector& v, const double c) {
-        return Vector(c*v.X(), c*v.Y());
-    }
-
-    Vector operator*(const double c, const Vector& v) {
-        return Vector(c*v.X(), c*v.Y());
-    }
-
-    Point operator* (const double c, const Point& p) {
-        return Point(c*p.X(), c*p.Y());
-    }
-
-    Point operator* (const Point& p, const double c) {
-        return Point(c*p.X(), c*p.Y());
-    }
-
-    Vector RVector (const Point& p) {
-        return Vector(p.X(), p.Y());
-    }
-
-    Point operator+ (const Point& p, const Vector& v) {
-        return Point(p.X()+v.X(), p.Y()+v.Y());
-    }
-
-    Point operator+ (const Point& p, const Point& q) {
-        return Point (q.X() + p.X(), q.Y() + p.Y());
-    }
-
-    Vector operator- (const Point& p, const Point& q) {
-        return Vector(p.X()-q.X(), p.Y()-q.Y());
-    }
-
-    Point RPoint (const Vector& v) {
-        return Point(v.X(), v.Y());
-    }
-
 namespace Geometry {
-    template <typename T, size_t n>
-    class 
-    template <typename T>
-    class Point;
 
-    template <typename T>
+    template <typename F>
+    bool operator==(const F&, const F&);
+
+    using namespace EXCEPT;
+    template <typename F>
     class Vector {
-        std::vector<T> data;
-    }
-
-    Vector operator*(const double c, const Vector& v);
-
-    Point operator* (const double c, const Point& p);
-
-    template <typename T>
-    class Point {
-        template <typename K>
-        friend class Vector;
-
-        std::vector<T> data;
+        std::vector<F> data;
+        size_t num;
         public:
-    
-        Point (const double c = 0.) {
-            double tmp = 0.;
-            if (!(fabs(c) < EPS)) tmp = c;
-            data(n, tmp);
-        }
-        
-        Point (const std::vector<T> value) {
-            data.assign(value.begin(), value.end());
+
+        Vector(const size_t n) {
+            if (n == 0) throw Except("not understand");
+            num = n;
+            data(num, F());
         }
 
-        Point(const Point& p) {
-            data.assign(p.data.begin(), p.data.end());
+        Vector(const std::vector<F>& value): num(value.length()), data(value) {}
+
+        Vector(std::vector<F>&& value) {
+            num = value.length();
+            data(value);
+            value.clear();
         }
 
-        Point(Point&& p) {
-            data.clear();
-            data.swap(p.data);
+        Vector(const Vector<F>& v) {
+            num = v.num;
+            data = v.data;
         }
 
-        Point& operator= (const Point& p) {
-            data.assign(p.data.begin(), p.data.end());
+        Vector(Vector<F>&& v) {
+            num = v.num; v.num = 0;
+            data(v.data); v.data.clear();
+        }
+
+        Vector& operator= (const Vector<F>& v) {
+            num = v.num;
+            data.assign(v.data.begin(), v.data.end());
             return *this;
         }
 
-        Point& operator= (Point&& p) {
-            data.clear();
-            data.swap(p.data);
-            return *this;
-        }
-    
-        T& operator[] (const size_t k) {
-            if(k >= data.length()) throw Except("out of range");
-            return data[k];
-        }
-
-        T operator[] (const size_t k) const {
-            if (k >= data.length()) throw Except("out of range");
-            return data[k];
-        }
-
-        Point operator+ (const Point<T>& p) const {
-            if (data.length() != p.data.length()) throw Except("not same dimensions");
-            Point<T> res;
-            for (size_t i = 0; i < data.length; ++i) res.data[i] =data[i] + p.data[i];
-            return res;
-        }
-
-        Point& operator+= (const Point<T>& p) {
-            *this = *this + p;
+        Vector& operator= (Vector<F>&& v) {
+            num = v.num; v.num = 0;
+            data.swap(v.data); v.data.clear();
             return *this;
         }
 
-        Point operator+ (const Vector<T>& v) const {
-            if (data.length() != v.data.length()) throw Except("not same dimensions");
-            Point<T> res;
-            for (size_t i = 0; i < data.length(); ++i) res.data[i] = data[i] + v.data[i];
+        ~Vector(void) {}
+
+        Vector operator+ (void) const {
+            return Vector<F>(data);
         }
 
-        Point& operator+= (const Vector<T>& v) {
+        Vector operator- (void) const {
+            auto newdata(data);
+            for (auto curr : newdata) curr = F()-curr;
+            return Vector<F>(newdata);
+        }
+
+        Vector operator+ (const Vector<F>& v) const {
+            if (num != v.num) throw Except("not same dimensions");
+            auto newdata(data);
+            for (size_t i = 0; i < num; ++i) newdata[i] += v.data[i];
+            return Vector<F>(newdata);
+        }
+
+        Vector& operator+= (const Vector<F>& v) {
             *this = *this + v;
             return *this;
         }
 
-    	Vector operator- (const Point& p, const Point& q);
-        Point operator* (const Point& p, const double c);
-        Vector toVector (const Point& p);
-	};
-
-    class Vector {
-        double x;
-        double y;
-
-        public:
-
-        Vector(double xx = 0, double yy = 0) {
-            if (fabs(xx) < EPS) x = 0;
-            else x = xx;
-
-            if (fabs(yy) < EPS) y = 0;
-            else y = yy;
+        Vector operator- (const Vector<F>& v) const {
+            if (num != v.num) throw Except("not same dimensions");
+            auto newdata(data);
+            for (size_t i = 0; i < num; ++i) newdata[i] -= v.data[i];
+            return Vector<F>(newdata);
         }
 
-        Vector(const Vector& v) {
-            x = v.x;
-            y = v.y;
-        }
-
-        Vector(Vector&& v) {
-            x = v.x; v.x = 0;
-            y = v.y; v.y = 0;
-        }
-
-        Vector& operator= (const Vector& v) {
-            x = v.x;
-            y = v.y;
-            return *this;
-        }
-    
-        Vector& operator= (Vector&& v) {
-            x = v.x; v.x = 0;
-            y = v.y; v.y = 0;
+        Vector& operator-= (const Vector<F>& v) {
+            *this = *this - v;
             return *this;
         }
 
-        double X(void) const{
-            return x;
+        Vector operator* (const F& lymbda) const {
+            auto newdata(data);
+            for (auto curr : newdata) curr *= lymbda;
+            return vector<F>(newdata);
         }
 
-        double Y(void) const{
-            return y;
-        }
+        bool operator== (const Vector<F>& v) const {
+            if (num != v.num) return false;
+            for (size_t i = 0; i < num; ++i) 
+                if (data[i] == v.data[i])
+                else return false;
 
-        Vector operator+ (const Vector& v) const {
-            return Vector(x+v.x, y+v.y);
         }
-
-        Vector operator- (const Vector& v) const {
-            return Vector(x-v.x, y-v.y);
-        }
-
-        Point operator+ (const Point& p) const {
-            return Point(x+p.X(), y+p.Y());
-        }
-
-        Vector operator+(void) const {
-            return Vector(x, y);
-        }
-
-        Vector operator-(void) const {
-            return Vector(-x, -y);
-        }
-
-        double operator*(const Vector v) const {
-            return x*v.x+y*v.y;
-        }
-
-        Vector operator*(const double c) const {
-            return Vector(c*x, c*y);
-        }
-
-        double mod(void) const{
-            return sqrt(x*x);
-        }
-
-        Vector n (void) const {
-            return Vector(-y, x);
-        }
-
-        Vector unit (void) const {
-            return Vector(x/this->mod(), y/this->mod());
-        }
-
-        Vector& norm (void) {
-            double len = this->mod();
-            x /= len; y /= len;
-            return *this;
-        }
-        
-       	Vector operator+ (const Vector& u, const Vector& v) {
-    	    return Vector(u.X()+v.X(), u.Y()+v.Y());
-		}
-	    Vector operator- (const Vector& u, const Vector& v);
-	    Point operator+ (const Vector& v, const Point& p);
-	    Vector operator+(const Vector& v);
-	    Vector operator-(const Vector& v);
-	    
-	    double operator*(const Vector& u, const Vector v);
-
-	    Vector operator*(const Vector& v, const double c);
-	    Point toPoint (const Vector& v);
     };
 
+    template <typename F>
+    Vector<F> operator* (const F& lymbda, const Vector<F>& v) {
+        return v*lymbda;
+    }
 }
 
 #endif
