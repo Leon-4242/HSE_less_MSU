@@ -1,8 +1,8 @@
-#ifndef SALARYbase
-#define SALARYbase
+#ifndef InterLagr
+#define InterLagr
 
 #include "RBTREE.hpp"
-#define MROT 19242
+#define EPS 1e-12
 
 namespace SALARYBASE {
     using namespace RBTREE;

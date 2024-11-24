@@ -8,26 +8,29 @@ namespace SALARYBASE {
     using namespace RBTREE;
 
     class SalaryBase {
-        class Salary {
+        class NameSalary {
             public:
+            std::string name;
             size_t salary;
             bool flag;
 
-            Salary(const size_t& val) {
-                flag = (val >= MROT) ? true : false;
+            NameSalary(const size_t& val, const std::string = "") {
+                name = Name;
                 salary = val;
             }
 
-            Salary(const Salary& s) {
+            NameSalary(const Salary& s) {
+                name = s.name;
                 salary = s.salary;
                 flag = s.flag;
             }
 
-            ~Salary(void) {}
+            ~NameSalary(void) {}
 
-            Salary& operator= (const Salary& s) {
-                salary = s.salary; flag = s.flag;
-                return *this;
+            NameSalary& operator= (const NameSalary& s) {
+                if (s.flag == false) {
+
+                }
             }
 
         }
