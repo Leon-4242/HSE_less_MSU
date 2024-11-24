@@ -1,13 +1,11 @@
 #ifndef RedBlackTree
 #define RedBlackTree
 
-#include "EXCEPT.h"
+#include "EXCEPT.hpp"
 #include <iostream>
 
 namespace RBTREE {
     enum COLOR {RED, BLACK};
-
-    using namespace PAIR;
     using namespace EXCEPT;
 
     template <typename K, typename V>
@@ -24,7 +22,7 @@ namespace RBTREE {
             node* right;
             static node null;
 
-            node(K k = K(), V val = V(), COLOR c = RED) {
+            node(const K k = K(), const V val = V(), const COLOR c = RED) {
                 key = k; value = val;
                 color = c;
                 parent = &null;
@@ -54,6 +52,10 @@ namespace RBTREE {
                 return value;
             }
 
+            const COLOR& Color(void) const {
+                return color;
+            }
+
             node* brother(void) {
                 return (parent->left == this) ? parent->right : parent->left;
             }
@@ -67,7 +69,8 @@ namespace RBTREE {
             }
             
             friend std::ostream& operator<< (std::ostream& os, const node& n) {
-                return os << "\nKey: " << n->key << "\nValue: " << n->value << "\nColor: " << (n->color == RED) ? "RED\n" : "BLACK\n";
+                if (n == null) return os << "\nLIST\n";
+                return os << "\nKey: " << n->key << " Value: " << n->value << "\n";
             }
 
             friend std::istream& operator>> (std::istream& is, node& n) {
@@ -289,6 +292,22 @@ namespace RBTREE {
             }
         }
 
+        node* newTree(const node* root) const{
+            if (root == &node::null) return &node::null;
+            node* newRoot, *newL = newTree(root->left), *newR = newTree(root->right);
+            newRoot = new node(root->Key(), root->Value(), root->Color());
+            newRoot->left = newL; newRoot->right = newR;
+            newL->parent = newR->parent = newRoot;
+            return newRoot;
+        }
+
+        void add(const node* n) {
+            if (n == &node::null) return;
+            insert(n->Key(), n->Value());
+            add(n->left);
+            add(n->right);
+        }
+
         public:
 
         RBTree(void) {
@@ -298,6 +317,18 @@ namespace RBTREE {
 
         RBTree(node* n) {
             root = n;
+        }
+
+        RBTree(const RBTree& tree) {
+            num = tree.num;
+            root = tree.newTree(tree.root);
+        }
+
+        RBTree& operator= (const RBTree& tree) {
+            this->clear();
+            num = tree.num;
+            root = tree.newTree(tree.root);
+            return *this;
         }
 
         bool empty(void) {
@@ -347,6 +378,15 @@ namespace RBTREE {
 
         void remove(const K& key) {
             remove(&root, key);
+        }
+        friend std::ostream& operator<< (std::ostream& os, const RBTree<K, V>& tree) {
+            if (tree.root == &node::null) return os;
+            return os << RBTree<K, V>(tree.root->left) << tree.root << RBTree<K, V>(tree.root->right);
+        }
+
+        RBTree operator+ (const RBTree& tree) const {
+            RBTree res(*this);
+            res.add(tree.root); return res;
         }
     };
     template <typename K, typename V>
