@@ -1,10 +1,10 @@
-#ifndef RedBlackTree1
-#define RedBlackTree1
+#ifndef RedBlackTree
+#define RedBlackTree
 
 #include "EXCEPT.h"
 #include <iostream>
 
-namespace RBTREE1 {
+namespace RBTREE {
     enum COLOR {RED, BLACK};
 
     using namespace PAIR;
