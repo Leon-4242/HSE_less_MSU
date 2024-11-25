@@ -1,61 +1,33 @@
 #ifndef SALARYbase
 #define SALARYbase
 
-#include "RBTREE.hpp"
 #define MROT 19242
+#include "RBTREE.hpp"
 
 namespace SALARYBASE {
     using namespace RBTREE;
 
     class SalaryBase {
-        class NameSalary {
-            public:
-            std::string name;
-            size_t salary;
-            bool flag;
-
-            NameSalary(const size_t& val, const std::string = "") {
-                name = Name;
-                salary = val;
-            }
-
-            NameSalary(const Salary& s) {
-                name = s.name;
-                salary = s.salary;
-                flag = s.flag;
-            }
-
-            ~NameSalary(void) {}
-
-            NameSalary& operator= (const NameSalary& s) {
-                if (s.flag == false) {
-
-                }
-            }
-
-        }
-        RBTree<std::string, size_t> data;
+        RBTree<std::string, size_t> DB;
         
         public:
-        SalaryBase(void): data() {}
-        SalaryBase(const SalaryBase& base): data(base.data) {}
-        SalaryBase& operator= (const SalaryBase& base) {
-            data = base.data;
-            return *this;
-        }
+        SalaryBase(RBTree<std::string, size_t> db = RBTree<std::string, size_t>() ): DB(db) {}
+        SalaryBase(const SalaryBase& database): DB(database.DB) {}
+        SalaryBase& operator= (const SalaryBase& database) {DB = database.DB; return *this;}
         ~SalaryBase(void) {}
         
-        size_t& operator[] (const std::string& name) {
-            size_t tmp = MROT;
-            if (data.find(name, tmp)) return data[name];
-            data.insert(name, tmp);
+        PairTree<std::string, size_t>& operator[] (const std::string& name);
+        friend std::ostream& operator<< (std::ostream& os, const SalaryBase& database) {return os << database.DB;}
+        std::ostream& print(std::ostream& os, const std::string& k1, const std::string& k2) {return DB.Print(os, k1, k2);}
 
-            return data[name];
-        }
+        SalaryBase operator+ (const SalaryBase& database) const {return SalaryBase(DB+database.DB);}
 
-        friend std::ostream& operator<< (std::ostream& os, const SalaryBase& base) {
-            return os << base.data;
-        }
+        SalaryBase& operator+= (const SalaryBase& database) {return *this = *this + database;}
+
+        bool operator== (const SalaryBase& database) const {return DB == database.DB;}
+        bool operator!= (const SalaryBase& database) const {return DB != database.DB;}
+
+        void remove(const std::string& name) {DB.remove(name);}
     };
 }
 
