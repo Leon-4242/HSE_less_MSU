@@ -9,11 +9,12 @@ int main(void) {
         SalaryBase base1(base), base2;
         base2["second"] = 25000;
         SalaryBase base3(base + base2);
-        base1 += base3;
+        base1 += base2;
         if (base1 == base3) {
-//            base.remove("first");
+            base.remove("first");
         }
-            std::cout <<base3 << std::endl;
+        
+//        std::cout <<base << std::endl;
 //        std::cout <<base << base1 << base2 <<std::endl;
 //        base.print(std::cout, "second", "zzzzzzz") << std::endl;
     } 

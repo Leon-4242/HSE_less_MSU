@@ -1,7 +1,7 @@
 #ifndef RedBlackTree
 #define RedBlackTree
 
-#include "EXCEPT.h"
+#include "EXCEPT.hpp"
 #include <iostream>
 
 namespace RBTREE {
@@ -10,7 +10,7 @@ namespace RBTREE {
 
     template <typename K, typename V>
     class RBTree {
-
+        protected:
         class node {
 
             public:
@@ -37,19 +37,21 @@ namespace RBTREE {
             }
 
             const K& Key(void) const{return key;}
-			K& Key(void) {return key;}
+            K& Key(void) {return key;}
             const V& Value(void) const {return value;}
-			V& Value(void) {return value;}
+            V& Value(void) {return value;}
+            const COLOR& Color(void) const {return color;}
+            COLOR& Color(void) {return color;}
 
             node* brother(void) {return (parent->left == this) ? parent->right : parent->left;}
 
             node* grandparent(void) {return parent->parent;}
 
             node* uncle(void) {return parent->brother();}
-            
-            friend std::ostream& operator<< (std::ostream& os, const node& n) {
+
+            friend std::ostream& operator<< (std::ostream& os, const node* n) {
                 if (n == &node::null) return os << "\nLIST\n";
-                if (!n.flag) return os;
+                if (!n->flag) return os;
                 return os << "\nKey: " << n->Key() << " Value: " << n->Value() << "\n";
             }
 
@@ -60,7 +62,7 @@ namespace RBTREE {
             }
             
             bool operator== (const node& n) const {
-                return (n.key_value == key_value);
+                return (n.key == key) && (n.value == value);
             }
 
             bool operator!= (const node& n) const {
@@ -70,8 +72,6 @@ namespace RBTREE {
 
         node* root;
         size_t num;
-
-        private:
 
         node* newNode(const K& key, const V& value) {
             ++num;
@@ -280,7 +280,7 @@ namespace RBTREE {
 		
 		node* newTree(const node* root) {
             if (root == &node::null) return &node::null;
-            node* newRoot = new node(PairTree<K, V>(root->Key(),root->Value()), root->Color());
+            node* newRoot = new node(root->Key(),root->Value(), root->Color());
             newRoot->left = newTree(root->left); newRoot->right = newTree(root->right);
             newRoot->left->parent = newRoot;
             newRoot->right->parent = newRoot;

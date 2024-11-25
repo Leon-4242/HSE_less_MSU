@@ -1,10 +1,10 @@
 #include "SALARYBASE.hpp"
 
 namespace SALARYBASE {
-        PairTree<std::string, size_t>& SalaryBase::operator[] (const std::string& name) {
-            PairTree<std::string, size_t> tmp(name, MROT);
-            if (DB.find(tmp)) return DB[name];
-            DB.insert(tmp);
+        size_t& SalaryBase::operator[] (const std::string& name) {
+            size_t tmp(MROT);
+            if (DB.find(name, tmp)) return DB[name];
+            DB.insert(name, tmp);
             return DB[name];
         }
 }
