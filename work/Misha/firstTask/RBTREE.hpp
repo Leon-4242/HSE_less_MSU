@@ -214,7 +214,6 @@ namespace RBTREE {
 
         void insert_case3(node* n) {
             node* u = n->uncle(), *g = n->grandparent();
-                std::cout <<"321" << std::endl;
             if (u != &node::null && u->color == RED) {
                 n->parent->color = BLACK;
                 u->color = BLACK;
@@ -426,7 +425,7 @@ namespace RBTREE {
         }
 
         void clear(void) {
-            clear(root);
+            clear(&root);
             root = &node::null;
         }
 
@@ -434,14 +433,14 @@ namespace RBTREE {
             this->clear();
         }
 
-        bool find(PairTree<K, V>& p) {
+        bool find(const K& key, V& value) {
             node* n = root;
             while (n != &node::null) {
-                if (n->Key() == p.first()) {
-                    p.second() = n->Value();
+                if (n->Key() == key) {
+                    value = n->Value();
                     return true;
                 }
-                n = (n->Key() < p.first()) ? n->left : n->right;
+                n = (n->Key() < key) ? n->left : n->right;
             }
             return false;
         }
