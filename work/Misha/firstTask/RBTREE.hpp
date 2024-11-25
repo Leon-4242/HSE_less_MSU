@@ -169,15 +169,16 @@ namespace RBTREE {
             node* res = new node(PairTree<K, V>(key, value));
             return res;
         }
-        void delNode(node* n) {
+        
+        void delNode(node** n) {
             --num;
-            delete n;
+            delete *n;
         }
 
-        void clear(node* n) {
-            if (n == &node::null) return;
-            clear(n->left);
-            clear(n->right);
+        void clear(node** n) {
+            if (*n == &node::null) return;
+            clear(&(*n)->left);
+            clear(&(*n)->right);
             delNode(n);
         }
 
@@ -238,28 +239,30 @@ namespace RBTREE {
 
         void insert(const K& key, const V& value, node** root) {
             node* n = *root;
-            if (n == &node::null) {
-                *root = newNode(key, value);
-                insert_case1(n);
-            } else {
+            if (n == &node::null) *root = newNode(key, value);
+            else {
                 if (key == n->Key()) n->Value() = value;
                 else if (key < n->Key()) insert(key, value, &n->left);
                 else insert(key, value, &n->right);
             }
+            insert_case1(n);
         }
-
-        void delChild(node* n) {
-            node* child = (n->right == &node::null) ? n->left : n->right;
+        
+        void replace(node* n, node* child) {
             child->parent = n->parent;
             if (n->parent->left == n) n->parent->left = child;
             else n->parent->right = child;
-            n->parent = &node::null;
-            n->right = n->left = &node::null;
+        }
+
+        void delChild(node** root) {
+        	node* n = *root;
+            node* child = (n->right == &node::null) ? n->left : n->right;
+			replace(n, child);
             if (n->color == BLACK) {
                 if (child->color == RED) child->color = BLACK;
                 else del_case1(child);
             }
-            delNode(n);
+            delNode(root);
         }
 
         void del_case1(node* n) {
@@ -296,16 +299,14 @@ namespace RBTREE {
 
         void del_case5(node* n) {
             node* b = n->brother();
-            if (b->color == BLACK) {
-                if (n->parent->left == n && b->left->color == RED && b->right->color == BLACK) {
-                    b->color = RED;
-                    b->left->color = BLACK;
-                    rotateR(b);
-                } else if (n->parent->right == n && b->left->color == BLACK && b->right->color == RED) {
-                    b->color = RED;
-                    b->right->color = BLACK;
-                    rotateL(b);
-                }
+            if (n->parent->left == n && b->left->color == RED && b->right->color == BLACK) {
+                b->color = RED;
+                b->left->color = BLACK;
+                rotateR(b);
+            } else if (n->parent->right == n && b->left->color == BLACK && b->right->color == RED) {
+                b->color = RED;
+                b->right->color = BLACK;
+                rotateL(b);
             }
             del_case6(n);
         }
@@ -325,25 +326,33 @@ namespace RBTREE {
         }
 
         node* getMin(node* n) {
-            node* res = n->right;
-            while (res->left != &node::null) res = res->left;
+            node *res; res = n;
+            if (res->left == &node::null) {
+                res = res->right;
+                while (res->left != &node::null) res = res->left;
+            } else {
+                res = res->left;
+                while (res->right != &node::null) res = res->right;
+            }
             return res;
         }
 
         void remove(node** root, const K& key) {
             node* n = *root;
-            if (n == &node::null) return;
             if (n->Key() == key) {
                 if (n->left != &node::null && n->right != &node::null) {
                     node* m = getMin(n);
-                    n->Key() = m->Key(); n->Value() = m->Value();
-                    delChild(m);
+                    n->key = m->key; n->value = m->value;
+                    delChild(&m);
                 } else {
-                    delChild(n);
+                    delChild(root);
                 }
-            } else if (key < n->Key()) {
+
+            } else if (n->Key() < key) {
+                if (n->left == &node::null) return;
                 remove(&n->left, key);
             } else {
+                if (n->right == &node::null) return;
                 remove(&n->right, key);
             }
         }
