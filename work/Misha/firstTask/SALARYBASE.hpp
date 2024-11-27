@@ -10,13 +10,6 @@ namespace SALARYBASE {
     class Base: public RBTree<std::string, size_t> {
         public:
         Base (const RBTree<std::string, size_t>& tree = RBTree<std::string, size_t>()) : RBTree<std::string, size_t>(tree) {}
-        friend  std::ostream& operator<< (std::ostream& os, node* n) {
-            if (n == &node::null) return os << "\nLIST\n";
-            if (n->Value() < MROT) n->flag = false;
-            else n->flag = true;
-            if (!n->flag) return os;
-            return os << "\nKey: " << n->Key() << " Value: " << n->Value() << "\n";
-        }
     };
 
     class SalaryBase {
