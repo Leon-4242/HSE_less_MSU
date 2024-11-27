@@ -1,17 +1,19 @@
 #ifndef InterLagr
 #define InterLagr
 
-#include "RBTREE.hpp"
-#include <math>
+#include "RBTREE.h"
+#include "LIST.h"
+#include <cmath>
 #define EPS 1e-12
 
 namespace APROXIMATOR {
     using namespace RBTREE;
+    using namespace LIST;
 
     class doub {
         double val;
         public:
-        doub(double v = 0.0) {
+        doub(const double& v = 0.0) {
             if (fabs(v) < EPS) val = 0.0;
             else val = v;
         }
@@ -27,10 +29,10 @@ namespace APROXIMATOR {
         doub operator* (const doub& d) const {return doub(val*d.val);}
         doub operator/ (const doub& d) const {return doub(val/d.val);}
 
-        doub& operator+= (const doub& d) const {*this = *this + d; return *this;}
-        doub& operator-= (const doub& d) const {*this = *this - d; return *this;}
-        doub& operator*= (const doub& d) const {*this = *this * d; return *this;}
-        doub& operator/= (const doub& d) const {*this = *this / d; return *this;}
+        doub& operator+= (const doub& d) {*this = *this + d; return *this;}
+        doub& operator-= (const doub& d) {*this = *this - d; return *this;}
+        doub& operator*= (const doub& d) {*this = *this * d; return *this;}
+        doub& operator/= (const doub& d) {*this = *this / d; return *this;}
 
         bool operator== (const doub& d) const {return fabs(val - d.val) < EPS;}
         bool operator!= (const doub& d) const {return !(*this == d);}
@@ -38,16 +40,16 @@ namespace APROXIMATOR {
         bool operator> (const doub& d) const {return *this != d && val > d.val;}
         bool operator<= (const doub& d) const {return !(*this > d);}
         bool operator>= (const doub& d) const {return !(*this < d);}
-    }
+    };
 
     template <typename T, typename L>
     class Pair {
         T val1; L val2;
         public:
-        Pair(T v1 = T(), L v2 = V()): val1(v1), val2(v2) {}
-        Pair(const Pair& p) val1(p.val1), val2(p.val2) {}
+        Pair(T v1 = T(), L v2 = L()): val1(v1), val2(v2) {}
+        Pair(const Pair& p): val1(p.val1), val2(p.val2) {}
         Pair& operator= (const Pair& p) {val1 = p.val1; val2 = p.val2; return *this;}
-        ~Pair{}
+        ~Pair(void) {}
         const T& first(void) const {return val1;}
         T& first(void) {return val1;}
         const L& second(void) const {return val2;}
@@ -62,36 +64,36 @@ namespace APROXIMATOR {
 
     class Aproximator {
         RBTree<doub, doub> points;
-        RBTree<size_t, doub> coord;
+        List<doub> coord;
         RBTree<Pair<size_t, size_t>, doub> coefNewton;
         
         public:
-        Aproximator(void): points(), coefNewton() {}
-        Aproximator(const Aproximator& polynom = Aproximator()): points(polynom.points), coefNewton(polynom.coefNewton) {}
-        Aproximator& operator= (const Aproximator& polynom) {points = polynom.points; coefNewton = polynom.coefNewton;return *this;}
+        Aproximator(void): points(), coord(), coefNewton() {}
+        Aproximator(const Aproximator& polynom): points(polynom.points), coord(polynom.coord), coefNewton(polynom.coefNewton) {}
+        Aproximator& operator= (const Aproximator& polynom) {points = polynom.points; coord = polynom.coord; coefNewton = polynom.coefNewton; return *this;}
         ~Aproximator(void) {}
 
-        double& operator[] (const doub& x) {
+        doub& operator[] (const doub& x) {
             doub y = 0.0;
             if (points.find(x, y)) return points[x];
             points.insert(x, y);
-            coord.insert(coord.Num+1, x);
+            coord.pushBack(x);
             return points[x];
         }
 
         void mkCoef(void) {
-            for (size_t k = 0; k < points.Num+1; ++k) {
-                for (size_t j = 0; j+k < points.Num+1; ++j) {
+            for (size_t k = 0; k < points.Num()+1; ++k) {
+                for (auto iter = coord.begin(), it = coord.begin() + k; it.Index() < points.Num()+1; ++iter, ++it) {
                     doub buff = 0;
-                    if (k == 0) buff = points[coord[j]].second;
-                    else buff = 
-                    coefNewton.insert( , );
+                    if (k == 0) buff = points[*iter];
+                    else buff = (coefNewton[Pair(k-1, iter.Index()+1)]-coefNewton[Pair(k-1, iter.Index())])/(*(it)-(*iter));
+                    coefNewton.insert(Pair(k, iter.Index()) , buff);
                 }
             }
         }
-//        friend std::ostream& operator<< (std::ostream& os, const Aproximator& base) {
-//            return os << base.data;
-//        }
+        friend std::ostream& operator<< (std::ostream& os, const Aproximator& polynom) {
+            
+        }
     };
 }
 

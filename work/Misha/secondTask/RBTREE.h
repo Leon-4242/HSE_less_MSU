@@ -1,7 +1,7 @@
 #ifndef RedBlackTree
 #define RedBlackTree
 
-#include "EXCEPT.hpp"
+#include "EXCEPT.h"
 #include <iostream>
 
 namespace RBTREE {
@@ -20,10 +20,9 @@ namespace RBTREE {
             node* parent;
             node* left;
             node* right;
-            bool flag;
             static node null;
 
-            node(K k = K(), V val = V(), COLOR c = RED): key(k), value(val), color(c), parent(&null), left(&null), right(&null), flag(true) {}
+            node(K k = K(), V val = V(), COLOR c = RED): key(k), value(val), color(c), parent(&null), left(&null), right(&null){}
 
             ~node(void) {
                 parent = nullptr;
@@ -33,7 +32,7 @@ namespace RBTREE {
 
             node& operator= (const node& n) {
                 key = n.key; value = n.value;
-                color = n.color; flag = n.flag;
+                color = n.color;
             }
 
             const K& Key(void) const{return key;}
@@ -51,12 +50,11 @@ namespace RBTREE {
 
             friend std::ostream& operator<< (std::ostream& os, const node& n) {
                 if (&n == &node::null) return os << "\nLIST\n";
-                if (n.Value() < MROT) return os;
                 return os << "\nKey: " << n.Key() << " Value: " << n.Value() << "\n";
             }
 
             friend std::istream& operator>> (std::istream& is, node& n) {
-                is >> n->key >>"\n">> n->value;
+                is >> n.key >>"\n">> n.value;
                 if (!is.good()) throw Except("wrong input data");
                 return is;
             }

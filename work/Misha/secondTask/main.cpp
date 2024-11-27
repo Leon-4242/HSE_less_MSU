@@ -1,9 +1,9 @@
-#include "SALARYBASE.hpp"
+#include "APROXIMATOR.h"
 
-using namespace SALARYBASE;
+using namespace APROXIMATOR;
 
 int main(void) {
-    SalaryBase base;
-    std::cout << base << std::endl;
+    Aproximator func;
+//    std::cout << base << std::endl;
     return 0;
 }
