@@ -10,7 +10,7 @@ namespace RBTREE {
 
     template <typename K, typename V>
     class RBTree {
-
+        protected:
         class node {
 
             public:
@@ -20,15 +20,10 @@ namespace RBTREE {
             node* parent;
             node* left;
             node* right;
+            bool flag;
             static node null;
 
-            node(const K k = K(), const V val = V(), const COLOR c = RED) {
-                key = k; value = val;
-                color = c;
-                parent = &null;
-                left = &null;
-                right = &null;
-            }
+            node(K k = K(), V val = V(), COLOR c = RED): key(k), value(val), color(c), parent(&null), left(&null), right(&null), flag(true) {}
 
             ~node(void) {
                 parent = nullptr;
@@ -38,39 +33,26 @@ namespace RBTREE {
 
             node& operator= (const node& n) {
                 key = n.key; value = n.value;
-                color = n.color;
-                parent = n.parent;
-                left = n.left;
-                right = n.right;
+                color = n.color; flag = n.flag;
             }
 
-            const K& Key(void) const{
-                return key;
-            }
+            const K& Key(void) const{return key;}
+            K& Key(void) {return key;}
+            const V& Value(void) const {return value;}
+            V& Value(void) {return value;}
+            const COLOR& Color(void) const {return color;}
+            COLOR& Color(void) {return color;}
 
-            const V& Value(void) const {
-                return value;
-            }
+            node* brother(void) {return (parent->left == this) ? parent->right : parent->left;}
 
-            const COLOR& Color(void) const {
-                return color;
-            }
+            node* grandparent(void) {return parent->parent;}
 
-            node* brother(void) {
-                return (parent->left == this) ? parent->right : parent->left;
-            }
+            node* uncle(void) {return parent->brother();}
 
-            node* grandparent(void) {
-                return parent->parent;
-            }
-
-            node* uncle(void) {
-                return parent->brother();
-            }
-            
             friend std::ostream& operator<< (std::ostream& os, const node& n) {
-                if (n == null) return os << "\nLIST\n";
-                return os << "\nKey: " << n->key << " Value: " << n->value << "\n";
+                if (&n == &node::null) return os << "\nLIST\n";
+                if (n.Value() < MROT) return os;
+                return os << "\nKey: " << n.Key() << " Value: " << n.Value() << "\n";
             }
 
             friend std::istream& operator>> (std::istream& is, node& n) {
@@ -78,12 +60,18 @@ namespace RBTREE {
                 if (!is.good()) throw Except("wrong input data");
                 return is;
             }
+            
+            bool operator== (const node& n) const {
+                return (n.key == key) && (n.value == value);
+            }
+
+            bool operator!= (const node& n) const {
+                return !(*this == n);
+            }
         };
 
         node* root;
         size_t num;
-
-        private:
 
         node* newNode(const K& key, const V& value) {
             ++num;
@@ -91,15 +79,16 @@ namespace RBTREE {
             return res;
         }
 
-        void delNode(node** n) {
+        void delNode(node*& n) {
             --num;
-            delete *n;
+            delete n;
+            n = &node::null;
         }
 
-        void clear(node** n) {
-            if (*n == &node::null) return;
-            clear(&(*n)->left);
-            clear(&(*n)->right);
+        void clear(node* n) {
+            if (n == &node::null) return;
+            clear(n->left);
+            clear(n->right);
             delNode(n);
         }
 
@@ -163,15 +152,22 @@ namespace RBTREE {
             else rotateL(n->parent);
         }
 
-        void insert(const K& key, const V& value, node** root) {
-            node* n = *root;
-            if (n == &node::null) *root = newNode(key, value);
-            else {
-                if (key == n->key) n->value = value;
-                else if (key < n->key) insert(key, value, &n->left);
-                else insert(key, value, &n->right);
+        node* insert(const K& key, const V& value, node*& n) {
+            if (n == &node::null) {
+                n = newNode(key, value);
+                return n;
+            } else {
+                if (key == n->Key()) n->Value() = value;
+                else if (key < n->Key()) {
+                    node *tmp = insert(key, value, n->left);
+                    tmp->parent = n;
+                } else {
+                    node *tmp = insert(key, value, n->right);
+                    tmp->parent = n;
+                }
             }
             insert_case1(n);
+            return n;
         }
 /*
         void del_case1(node<K, V>* n);
@@ -184,24 +180,21 @@ namespace RBTREE {
         void replace(node* n, node* child) {
             child->parent = n->parent;
             if (n->parent->left == n) n->parent->left = child;
-            else n->parent->right = child;
+            else if (n->parent->right == n) n->parent->right = child;
         }
 
-        void delChild(node** no) {
-            node* n = *no;
+        void delChild(node* n) {
             node* child = (n->right == &node::null) ? n->left : n->right;
             replace(n, child);
             if (n->color == BLACK) {
                 if (child->color == RED) child->color = BLACK;
                 else del_case1(child);
             }
-            delNode(no);
+            delNode(n);
         }
 
         void del_case1(node* n) {
-            if (n->parent != &node::null) {
-                del_case2(n);
-            }
+            if (n->parent != &node::null) del_case2(n);
         }
 
         void del_case2(node* n) {
@@ -272,65 +265,85 @@ namespace RBTREE {
             return res;
         }
 
-        void remove(node** root, const K& key) {
-            node* n = *root;
+        void remove(node* n, const K& key) {
             if (n->Key() == key) {
                 if (n->left != &node::null && n->right != &node::null) {
                     node* m = getMin(n);
                     n->key = m->key; n->value = m->value;
-                    delChild(&m);
+                    delChild(m);
                 } else {
-                    delChild(root);
+                    delChild(n);
                 }
 
-            } else if (n->Key() < key) {
+            } else if (n->Key() > key) {
                 if (n->left == &node::null) return;
-                remove(&n->left, key);
+                remove(n->left, key);
             } else {
                 if (n->right == &node::null) return;
-                remove(&n->right, key);
+                remove(n->right, key);
             }
         }
-
-        node* newTree(const node* root) const{
+		
+		node* newTree(const node* root) {
             if (root == &node::null) return &node::null;
-            node* newRoot, *newL = newTree(root->left), *newR = newTree(root->right);
-            newRoot = new node(root->Key(), root->Value(), root->Color());
-            newRoot->left = newL; newRoot->right = newR;
-            newL->parent = newR->parent = newRoot;
+            node* newRoot = new node(root->Key(),root->Value(), root->Color());
+            newRoot->left = newTree(root->left); newRoot->right = newTree(root->right);
+            newRoot->left->parent = newRoot;
+            newRoot->right->parent = newRoot;
             return newRoot;
         }
-
+        
         void add(const node* n) {
             if (n == &node::null) return;
             insert(n->Key(), n->Value());
             add(n->left);
             add(n->right);
         }
+        
+        std::ostream& print(std::ostream& os, const node* n) const {
+            if (n == &node::null) return os;
+            print(os, n->left) <<*n;
+            print(os, n->right);
+            return os;
+        }
+        
+        std::ostream& print(std::ostream& os, const node* n, const K& k1, const K& k2) const {
+            if (n == &node::null) return os;
+            if (n->Key() < k1 || n->Key() > k2) return os;
+            print(os, n->left, k1, k2) << *n;
+            print(os, n->right, k1, k2);
+            return os;
+        }
 
-        public:
+		bool eq(const node* n1, const node* n2) const {
+            if (n1 == &node::null && n2 == &node::null) return true;
+            if ((n1 == &node::null && n2 != &node::null) || (n1 != &node::null && n2 == &node::null)) return false;
+            return (*n1 == *n2) && eq(n1->left, n2->left) && eq(n1->right, n2->right);
+        }
+        
+		public:
 
         RBTree(void) {
             num = 0;
-            root = &(node::null);
+            root = &node::null;
         }
 
         RBTree(node* n) {
             root = n;
         }
 
-        RBTree(const RBTree& tree) {
+		RBTree(const RBTree& tree) {
             num = tree.num;
-            root = tree.newTree(tree.root);
+            root = newTree(tree.root);
         }
-
+        
         RBTree& operator= (const RBTree& tree) {
             this->clear();
             num = tree.num;
-            root = tree.newTree(tree.root);
+            root = newTree(tree.root);
             return *this;
         }
-
+        
         bool empty(void) {
             return num == 0;
         }
@@ -340,7 +353,7 @@ namespace RBTREE {
         }
 
         void clear(void) {
-            clear(&root);
+            clear(root);
             root = &node::null;
         }
 
@@ -355,7 +368,7 @@ namespace RBTREE {
                     value = n->value;
                     return true;
                 }
-                n = (n->Key() < key) ? n->left : n->right;
+                n = (n->Key() > key) ? n->left : n->right;
             }
             return false;
         }
@@ -366,27 +379,44 @@ namespace RBTREE {
                 if (n->Key() == key) {
                     return n->value;
                 }
-                n = (n->Key() < key) ? n->left : n->right;
+                n = (n->Key() > key) ? n->left : n->right;
             }
             throw Except("invalid key");
         }
 
         void insert(const K& key, const V& value) {
-            insert(key, value, &root);
+            insert(key, value, root);
             root->color = BLACK;
         }
 
         void remove(const K& key) {
-            remove(&root, key);
+            remove(root, key);
         }
+        
         friend std::ostream& operator<< (std::ostream& os, const RBTree<K, V>& tree) {
-            if (tree.root == &node::null) return os;
-            return os << RBTree<K, V>(tree.root->left) << tree.root << RBTree<K, V>(tree.root->right);
+            return tree.print(os, tree.root);
         }
-
+        
+		std::ostream& Print(std::ostream& os, const K& k1, const K& k2) {
+            return print(os, root, k1, k2);
+        }
+        
         RBTree operator+ (const RBTree& tree) const {
             RBTree res(*this);
             res.add(tree.root); return res;
+        }
+
+        RBTree& operator+= (const RBTree tree) {
+            *this = *this + tree;
+            return *this;
+        }
+
+        bool operator== (const RBTree& tree) const {
+            return eq(root, tree.root);
+        }
+
+        bool operator!= (const RBTree& tree) const {
+            return !(*this == tree);
         }
     };
     template <typename K, typename V>
