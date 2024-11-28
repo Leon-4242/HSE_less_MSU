@@ -1,12 +1,11 @@
 #ifndef RedBlackTree
 #define RedBlackTree
 
-#include "EXCEPT.hpp"
 #include <iostream>
+#define MROT 19242
 
 namespace RBTREE {
     enum COLOR {RED, BLACK};
-    using namespace EXCEPT;
 
     template <typename K, typename V>
     class RBTree {
@@ -26,9 +25,9 @@ namespace RBTREE {
             node(K k = K(), V val = V(), COLOR c = RED): key(k), value(val), color(c), parent(&null), left(&null), right(&null), flag(true) {}
 
             ~node(void) {
-                parent = nullptr;
-                left = nullptr;
-                right = nullptr;
+                parent = NULL;
+                left = NULL;
+                right = NULL;
             }
 
             node& operator= (const node& n) {
@@ -57,7 +56,6 @@ namespace RBTREE {
 
             friend std::istream& operator>> (std::istream& is, node& n) {
                 is >> n->key >>"\n">> n->value;
-                if (!is.good()) throw Except("wrong input data");
                 return is;
             }
             
@@ -93,8 +91,8 @@ namespace RBTREE {
         }
 
         node* rotateL(node* a) {
-            auto b = a->right;
-            auto med = b->left; 
+            node* b = a->right;
+            node* med = b->left; 
             b->left = a;
             a->right = med;
             b->parent = a->parent;
@@ -103,8 +101,8 @@ namespace RBTREE {
         }
 
         node* rotateR(node* a) {
-            auto b = a->left;
-            auto med = b->right; 
+            node* b = a->left;
+            node* med = b->right; 
             b->right = a;
             a->left = med;
             b->parent = a->parent;
@@ -381,7 +379,6 @@ namespace RBTREE {
                 }
                 n = (n->Key() > key) ? n->left : n->right;
             }
-            throw Except("invalid key");
         }
 
         void insert(const K& key, const V& value) {
