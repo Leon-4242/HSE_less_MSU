@@ -3,44 +3,12 @@
 
 #include "RBTREE.h"
 #include "LIST.h"
-#include <cmath>
-#define EPS 1e-12
+#include "polynom.h"
 
 namespace APROXIMATOR {
     using namespace RBTREE;
     using namespace LIST;
-
-    class doub {
-        double val;
-        public:
-        doub(const double& v = 0.0) {
-            if (fabs(v) < EPS) val = 0.0;
-            else val = v;
-        }
-        doub(const doub& d): val(d.val){}
-        ~doub(void) {}
-        doub& operator=(const doub& d) {val = d.val; return *this;}
-
-        doub operator+ (const doub& d) const {return doub(val+d.val);}
-        doub operator- (const doub& d) const {return doub(val-d.val);}
-        doub operator+ (void) const {return doub(val);}
-        doub operator- (void) const {return doub(-val);}
-
-        doub operator* (const doub& d) const {return doub(val*d.val);}
-        doub operator/ (const doub& d) const {return doub(val/d.val);}
-
-        doub& operator+= (const doub& d) {*this = *this + d; return *this;}
-        doub& operator-= (const doub& d) {*this = *this - d; return *this;}
-        doub& operator*= (const doub& d) {*this = *this * d; return *this;}
-        doub& operator/= (const doub& d) {*this = *this / d; return *this;}
-
-        bool operator== (const doub& d) const {return fabs(val - d.val) < EPS;}
-        bool operator!= (const doub& d) const {return !(*this == d);}
-        bool operator< (const doub& d) const {return *this != d && val < d.val;}
-        bool operator> (const doub& d) const {return *this != d && val > d.val;}
-        bool operator<= (const doub& d) const {return !(*this > d);}
-        bool operator>= (const doub& d) const {return !(*this < d);}
-    };
+    using namespace poly;
 
     template <typename T, typename L>
     class Pair {
@@ -65,12 +33,13 @@ namespace APROXIMATOR {
     class Aproximator {
         RBTree<doub, doub> points;
         List<doub> coord;
-        RBTree<Pair<size_t, size_t>, doub> coefNewton;
-        
+        RBTree< Pair<size_t, size_t> /*KEY*/, doub /*VALUE*/> coefNewton;
+        polynom p;
+
         public:
-        Aproximator(void): points(), coord(), coefNewton() {}
-        Aproximator(const Aproximator& polynom): points(polynom.points), coord(polynom.coord), coefNewton(polynom.coefNewton) {}
-        Aproximator& operator= (const Aproximator& polynom) {points = polynom.points; coord = polynom.coord; coefNewton = polynom.coefNewton; return *this;}
+        Aproximator(void): points(), coord(), coefNewton(), p() {}
+        Aproximator(const Aproximator& app): points(app.points), coord(app.coord), coefNewton(app.coefNewton), p(app.p) {}
+        Aproximator& operator= (const Aproximator& app) {points = app.points; coord = app.coord; coefNewton = app.coefNewton; p = app.p; return *this;}
         ~Aproximator(void) {}
 
         doub& operator[] (const doub& x) {
@@ -85,14 +54,26 @@ namespace APROXIMATOR {
             for (size_t k = 0; k < points.Num()+1; ++k) {
                 for (auto iter = coord.begin(), it = coord.begin() + k; it.Index() < points.Num()+1; ++iter, ++it) {
                     doub buff = 0;
+                    if (coefNewton.find(Pair(k, iter.Index()), buff)) continue;
                     if (k == 0) buff = points[*iter];
                     else buff = (coefNewton[Pair(k-1, iter.Index()+1)]-coefNewton[Pair(k-1, iter.Index())])/(*(it)-(*iter));
                     coefNewton.insert(Pair(k, iter.Index()) , buff);
                 }
             }
         }
-        friend std::ostream& operator<< (std::ostream& os, const Aproximator& polynom) {
-            
+
+        void mkPoly(void) {
+            polynom tmp(doub(1));
+            for (auto iter = coord.begin(); iter != coord.end(); ++iter) {
+                p += tmp*(coefNewton[Pair(iter.Index(), (size_t)0)]);
+                tmp *= polynom(1, 1)-(*iter);
+            }
+        }
+
+        friend std::ostream& operator<< (std::ostream& os, Aproximator& app) {
+            app.mkCoef();
+            app.mkPoly();
+            return os << app.p;
         }
     };
 }

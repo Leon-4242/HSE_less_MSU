@@ -16,15 +16,14 @@ namespace LIST {
 
     template <typename T>
     class List {
-        template <typename V>
         class Node {
             public:
 
-            V mes;
+            T mes;
             Node* last;
             Node* next;
 
-            Node(const V text): mes(text) {
+            Node(const T text): mes(text) {
                 next = nullptr;
                 last = nullptr; 
             }
@@ -34,20 +33,19 @@ namespace LIST {
                 next = nullptr;
             }
 
-            V val(void) const {
+            T val(void) const {
                return mes;
             }
         };
 
-        template <typename V>
         class iterator {
             public:
 
-            const List<V> *lst;
-            Node<V>* pos;
+            const List* lst;
+            Node* pos;
             size_t index;
 
-            iterator (const List<V>* list = nullptr, Node<V>* node = nullptr, const size_t ind = 0): index(ind) {
+            iterator (const List* list = nullptr, Node* node = nullptr, const size_t ind = 0): index(ind) {
                 lst = list;
                 pos = node;
             }
@@ -94,6 +92,10 @@ namespace LIST {
                 return iterator(lst, tmp, index+k);
             }
 
+            int operator- (const iterator& i) const {
+                return (index-i.index);
+            }
+
             bool operator== (const iterator& i) const {
                 return (lst == i.lst && index == i.index) ? true : false;
             }
@@ -102,7 +104,7 @@ namespace LIST {
                 return !(*this == i);
             }
 
-            V& operator* (void) {
+            T& operator* (void) {
                 return pos->mes;
             }
 
@@ -111,8 +113,79 @@ namespace LIST {
             }
         };
 
-        Node<T>* head;
-        Node<T>* back;
+        class riterator {
+            public:
+
+            const List *lst;
+            Node* pos;
+            int index;
+
+            riterator (const List* list = nullptr, Node* node = nullptr, const size_t ind = 0): index(ind) {
+                lst = list;
+                pos = node;
+            }
+
+            ~riterator(void) {
+                lst = nullptr;
+                pos = nullptr;
+            }
+
+            riterator& operator++(void) {
+                if (pos == nullptr) return *this;
+                pos = pos->last;
+                index--;
+                return *this;
+            }
+            riterator operator++(int) {
+                if (pos == nullptr) return *this;
+                iterator old = *this;
+                ++(*this);
+                return old;
+            }
+
+            riterator& operator--(void) {
+                if (pos == nullptr) return *this;
+                pos = pos->next;
+                index++;
+                return *this;
+            }
+
+            riterator operator--(int) {
+                if (pos == nullptr) return *this;
+                iterator old = *this;
+                --(*this);
+                return old;
+            }
+
+            riterator operator+(size_t k) {
+                if (pos == nullptr) return *this;
+                auto tmp = pos;
+                for (size_t i = 0; i < k; ++i) {
+                    if (tmp != nullptr) tmp = tmp->last;
+                    else return lst->rbegin();
+                }
+                return riterator(lst, tmp, index-k);
+            }
+
+            bool operator== (const riterator& i) const {
+                return (lst == i.lst && index == i.index);
+            }
+
+            bool operator!= (const riterator& i) const {
+                return !(*this == i);
+            }
+
+            T& operator* (void) {
+                return pos->mes;
+            }
+
+            size_t Index (void) {
+                return index;
+            }
+        };
+
+        Node* head;
+        Node* back;
         size_t size;
 
         public:
@@ -143,12 +216,12 @@ namespace LIST {
             size = 0;
             for (auto iter = ls.begin(); iter != ls.end(); ++iter) {
                 if (size == 0) {
-                    back = new Node<T>(*iter);
+                    back = new Node(*iter);
                     head = back;
                     size++;
                     continue;
                 }
-                back->next = new Node<T>(*iter);
+                back->next = new Node(*iter);
                 back->next->last = back;
                 back = back->next;
                 size++;
@@ -189,12 +262,12 @@ namespace LIST {
 
 		void pushBack(const T text) {
     	    if (size == 0) {
-   		        back = new Node<T>(text);
+   		        back = new Node(text);
     	        head = back;
         	    size = 1;
         	    return;
         	}
-			back->next = new Node<T>(text);
+			back->next = new Node(text);
 			back->next->last = back;
 			back = back->next;
         	size++;
@@ -217,12 +290,12 @@ namespace LIST {
 
         void pushHead(const T text) {
         	if (size == 0) {
-        	    head = new Node<T>(text);
+        	    head = new Node(text);
         	    back = head;
         	    size = 1;
         	    return;
         	}
-        	head->last = new Node<T>(text);
+        	head->last = new Node(text);
         	head->last->next = head;
         	head = head->last;
         	size++;
@@ -253,7 +326,7 @@ namespace LIST {
         	}
         	auto iter = this->begin();
         	for (size_t i = 0; i < k; ++i) ++iter;
-        	auto block = new Node<T>(text);
+        	auto block = new Node(text);
 
         	iter.pos->last->next = block;
         	block->next = iter.pos;
@@ -262,7 +335,7 @@ namespace LIST {
         	size++;
     	}
 		 
-        void pushIn (iterator<T> iter, const T text) {
+        void pushIn (iterator iter, const T text) {
             if (iter.Index() == 0) {
                 this->pushHead(text);
                 return;
@@ -271,7 +344,7 @@ namespace LIST {
                 this->pushBack(text);
                 return;
             }
-            auto block = new Node<T>(text);
+            auto block = new Node(text);
             iter.pos->last->next = block;
             block->next = iter.pos;
             block->last = iter.pos->last;
@@ -297,7 +370,7 @@ namespace LIST {
         	size--;
     	}     
 
-        void popIn(iterator<T> iter) {
+        void popIn(iterator iter) {
             if (iter.Index() == 0) {
                 this->popHead();
                 return;
@@ -323,7 +396,7 @@ namespace LIST {
     	List add(const List* curr) {
     	    List res = *this;
     	    for (auto iter = curr->begin(); iter != curr->end(); ++iter) {
-    	        res.back->next = new Node<T>(*iter);
+    	        res.back->next = new Node(*iter);
 
     	        res.back->next->last = res.back;
     	        res.back = res.back->next;
@@ -337,58 +410,22 @@ namespace LIST {
     	        this->popBack();
     	    }
     	}
-	    
-   		List sort(int (*op)(const T, const T)) {
-        	List tmp; bool flag = true;
-        	for (auto iter = this->begin(); iter != this->end(); ++iter) {
-        	    if (tmp.empty()) {
-        	        tmp.pushBack(*iter);
-        	        continue;
-        	    }
-	
-    	        for (auto it = tmp.begin(); it != tmp.end(); ++it) {
-    	            if (op(*iter, *it) == 1) continue;
-    	            else {
-    	                tmp.pushIn(it, *iter);
-    	                flag = false;
-    	                break;
-        	        }
-        	    }
-        	    if (flag) tmp.pushBack(*iter); 
-        	    else flag = true;
 
-        	}
-        	return tmp;
-    	}
-        
-        void swap (iterator<T> i1, iterator<T> i2) {
-    	    List<T> ls;
-        
-    	    for (auto iter = i1.lst->begin(); iter != i1.lst->end(); ++iter) {
-    	        if (iter == i1) {
-    	            ls.pushBack(*i2);
-    	        }
-    	        else if (iter == i2) {
-    	            ls.pushBack(*i1);
-    	        }
-    	        else {
-    	            ls.pushBack(*iter);
-    	        }
-    	    }
-    	    *this = ls;
-    	}
+        iterator begin(void)  const{
+            return iterator(this, head, 0);
+        }
 
-    		iterator<T> begin(void)  const{
-    	    return iterator<T>(this, head, 0);
-    	}
+        iterator end(void) const {
+            return iterator(this, back->next, size);
+        }
 
-    	iterator<T> end(void) const {
-    	    return iterator<T>(this, back->next, size);
-    	}
+        riterator rbegin(void) const {
+            return riterator(this, back, size-1);
+        }
 
-		static std::string name (void) {
-			return std::string("List");
-		}
+        riterator rend(void) const {
+            return riterator(this, head->last, -1);
+        }
 
     };
 

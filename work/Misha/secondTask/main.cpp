@@ -4,6 +4,9 @@ using namespace APROXIMATOR;
 
 int main(void) {
     Aproximator func;
-//    std::cout << base << std::endl;
+    func[1] = 1;
+    std::cout << func << std::endl;
+    func[2] = 3;
+    std::cout << func << std::endl;
     return 0;
 }
