@@ -1,8 +1,7 @@
-#include "APROXIMTOR.h"
-
+#include "APROXIMATOR.h"
 
 namespace APROXIMATOR {
-        doub& APROXIMATOR::operator[] (const doub& x) {
+        doub& Aproximator::operator[] (const doub& x) {
             doub y = 0.0; actual = false;
             if (points.find(x, y)) return points[x];
             points.insert(x, y);
@@ -10,7 +9,7 @@ namespace APROXIMATOR {
             return points[x];
         }
 
-        void APROXIMATOR::remove(const doub& d) {
+        void Aproximator::remove(const doub& d) {
             size_t i = points.Num()+1;
             while (i != 0) {
                 coefNewton.remove(Pair((size_t)(i-1), points.Num()-i));
@@ -23,11 +22,11 @@ namespace APROXIMATOR {
                 }
             }
             points.remove(d);
-            mkCoef(); mkPoly();
+            mkCoef(); mkPolyNewton(); mkPolyLagrange();
             actual = true;
         }
 
-        void APROXIMATOR::mkCoef(void) {
+        void Aproximator::mkCoef(void) {
             for (size_t k = 0; k < points.Num(); ++k) {
                 for (auto iter = coord.begin(), it = iter + k; it.Index() < points.Num(); ++iter, ++it) {
                     doub buff = 0;
@@ -39,35 +38,52 @@ namespace APROXIMATOR {
             }
         }
 
-        void APROXIMATOR::mkPoly(void) {
+        void Aproximator::mkPolyNewton(void) {
             polynom tmp(1);
-            p = polynom();
+            pNewton = polynom();
             for (auto iter = coord.begin(); iter != coord.end(); ++iter) {
-                p += tmp * (coefNewton[Pair(iter.Index(), (size_t)0)]);
+                pNewton += tmp * (coefNewton[Pair(iter.Index(), (size_t)0)]);
                 tmp *= polynom(1, 1)-(*iter);
             }
         }
 
-        void APROXIMATOR::operator() (const doub& x, const doub &y) {
+        void Aproximator::mkPolyLagrange(void) {
+            pLagrange = polynom();
+            polynom buff{1.0};
+            for (auto iter = coord.begin(); iter != coord.end(); ++iter) {
+                buff = polynom(1.0);
+                for (auto it = coord.begin(); it != coord.end(); ++it) {
+                    if (it != iter) {
+                        buff *= (polynom(1, 1) - (*it)) * (doub(1.0)/(*iter - *it));
+                    }
+                }
+                pLagrange += points[*iter]*buff;
+            }
+        }
+
+        void Aproximator::operator() (const doub& x, const doub &y) {
             doub tmp = y;
             if (!points.find(x, tmp)) coord.pushBack(x);
             points.insert(x, y);
             mkCoef();
-            mkPoly();
+            mkPolyNewton();
+            mkPolyLagrange();
             actual = true;
         }
 
-        double APROXIMATOR::operator() (const doub& x) {
+        double Aproximator::operator() (const doub& x) {
             if (!actual) {
-                mkCoef(); mkPoly();
+                mkCoef(); mkPolyNewton(); mkPolyLagrange();
             }
-            return (p(x))();
+            return (pNewton(x))();
         }
-}
-        std::ostream& operator<< (std::ostream& os, APROXIMATOR::Aproximator& app) {
+
+        std::ostream& operator<< (std::ostream& os, Aproximator& app) {
             if (!app.actual) {
                 app.mkCoef();
-                app.mkPoly();
+                app.mkPolyNewton();
+                app.mkPolyLagrange();
             }
-            return os << "polynom by Newton: " << app.p;
+            return os << "polynom by Newton's method: " << app.pNewton <<"\npolynom by Lagrange's method: " << app.pLagrange ;
         }
+}

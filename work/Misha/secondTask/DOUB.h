@@ -1,10 +1,12 @@
-#ifndef DOUBle
-#define DOUBle
+#ifndef DoubleNew
+#define DoubleNew
 
 #define EPS 1e-12
-double fabs(const double&);
+#include <cmath>
+#include <iostream>
 
-namespace DUOB{
+namespace DOUB {
+
     class doub {
         double val;
         public:
@@ -40,35 +42,7 @@ namespace DUOB{
         friend std::ostream& operator<< (std::ostream& os, const doub& d);
         friend std::istream& operator>> (std::istream& is, doub& d);
         double operator()(void) const {return val;}
-};
-    std::ostream& operator<< (std::ostream& os, const doub& d) {
-        return os << d.val;
-    }
-
-    std::istream& operator>> (std::istream& is, doub& d) {
-        is >> d.val;
-        if (fabs(d.val) < EPS) d.val = 0.;
-        return is;
-    }
-
-
-    doub powD(doub base, size_t exp) {
-        doub res{1};
-        while (exp != 0) {
-            if (exp%2 == 0) {
-                base *= base;
-                exp /= 2;
-            } else {
-                --exp;
-                res *= base;
-            }
-        }
-        return res;
-    }
-}
-double fabs(const double& value) {
-    if (value < 0) return -value;
-    return value;
+    };
 }
 
 #endif

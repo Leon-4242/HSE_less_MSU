@@ -435,6 +435,15 @@ namespace LIST {
             return riterator(this, null, 0);
         }
 
+        bool operator== (const List& l) const {
+            if (size != l.size) return false;
+            for (auto iter = begin(), it = l.begin(); iter != end(); ++iter, ++it) {
+                if (*iter != *it) return false;
+            }
+            return true;
+        }
+
+        bool operator!= (const List& l) const {return !(*this == l);}
     };
 
     template <typename T>

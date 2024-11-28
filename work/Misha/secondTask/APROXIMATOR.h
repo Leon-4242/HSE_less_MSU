@@ -2,7 +2,6 @@
 #define InterLagr
 
 #include "RBTREE.h"
-#include "LIST.h"
 #include "polynom.h"
 
 namespace APROXIMATOR {
@@ -34,13 +33,19 @@ namespace APROXIMATOR {
         RBTree<doub, doub> points;
         List<doub> coord;
         RBTree< Pair<size_t, size_t> /*KEY*/, doub /*VALUE*/> coefNewton;
-        polynom p;
+        polynom pLagrange;
+        polynom pNewton;
         bool actual;
 
         public:
-        Aproximator(void): points(), coord(), coefNewton(), p(), actual(true) {}
-        Aproximator(const Aproximator& app): points(app.points), coord(app.coord), coefNewton(app.coefNewton), p(app.p), actual(app.actual) {}
-        Aproximator& operator= (const Aproximator& app) {points = app.points; coord = app.coord; coefNewton = app.coefNewton; p = app.p; actual = app.actual; return *this;}
+        Aproximator(void): points(), coord(), coefNewton(), pLagrange(), pNewton(), actual(true) {}
+        Aproximator(const Aproximator& app): points(app.points), coord(app.coord), coefNewton(app.coefNewton), pLagrange(app.pLagrange), pNewton(app.pNewton), actual(app.actual) {}
+        Aproximator& operator= (const Aproximator& app) {
+            points = app.points; coord = app.coord; 
+            coefNewton = app.coefNewton; 
+            pLagrange = app.pLagrange; pNewton = app.pNewton;
+            actual = app.actual; return *this;
+        }
         ~Aproximator(void) {}
 
         doub& operator[] (const doub& x);
@@ -52,19 +57,14 @@ namespace APROXIMATOR {
 
         void mkCoef(void);
 
-        void mkPoly(void);
+        void mkPolyNewton(void);
+        void mkPolyLagrange(void);
 
         void operator() (const doub& x, const doub &y);
 
         double operator() (const doub& x);
 
-        friend std::ostream& operator<< (std::ostream& os, Aproximator& app) {
-            if (!app.actual) {
-                app.mkCoef();
-                app.mkPoly();
-            }
-            return os << "polynom by Newton: " << app.p;
-        }
+        friend std::ostream& operator<< (std::ostream& os, Aproximator& app);
     };
 }
 
