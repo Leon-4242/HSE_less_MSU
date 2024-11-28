@@ -1,4 +1,4 @@
-#include "SALARYBASE.hpp"
+#include "salarybase.h"
 
 namespace SALARYBASE {
         size_t& SalaryBase::operator[] (const std::string& name) {
@@ -8,4 +8,3 @@ namespace SALARYBASE {
             return DB[name];
         }
 }
-
