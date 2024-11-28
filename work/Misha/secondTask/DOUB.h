@@ -53,7 +53,7 @@ namespace DUOB{
 
 
     doub powD(doub base, size_t exp) {
-        doub res{};
+        doub res{1};
         while (exp != 0) {
             if (exp%2 == 0) {
                 base *= base;

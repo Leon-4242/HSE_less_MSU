@@ -51,12 +51,33 @@ namespace APROXIMATOR {
             return points[x];
         }
 
+        bool operator== (const Aproximator& app) const {return points == app.points && coord == app.coord;}
+        bool operator!= (const Aproximator& app) const {return *this != app;}
+
+        void remove(const doub& d) {
+            size_t i = points.Num()+1;
+            while (i != 0) {
+                coefNewton.remove(Pair((size_t)(i-1), points.Num()-i));
+                --i;
+            }
+            for (auto iter = coord.begin(); iter != coord.end(); ++iter) {
+                if (*iter == d) {
+                    coord.popIn(iter);
+                    break;
+                }
+            }
+            points.remove(d);
+            mkCoef(); mkPoly();
+            actual = true;
+        }
+
         void mkCoef(void) {
             for (size_t k = 0; k < points.Num(); ++k) {
                 for (auto iter = coord.begin(), it = iter + k; it.Index() < points.Num(); ++iter, ++it) {
                     doub buff = 0;
-                    if (k == 0) buff = points[*iter];
-                    else buff = (coefNewton[Pair(k-1, iter.Index()+1)]-coefNewton[Pair(k-1, iter.Index())])/(*(it)-(*iter));
+                    if (k == 0) {
+                        buff = points[*iter];
+                    } else buff = (coefNewton[Pair(k-1, iter.Index()+1)]-coefNewton[Pair(k-1, iter.Index())])/(*(it)-(*iter));
                     coefNewton.insert(Pair(k, iter.Index()) , buff);
                 }
             }
@@ -92,7 +113,7 @@ namespace APROXIMATOR {
                 app.mkCoef();
                 app.mkPoly();
             }
-            return os << app.p;
+            return os << "polynom by Newton: " << app.p;
         }
     };
 }

@@ -2,10 +2,8 @@
 #define LISTOFALL
 
 #include <iostream>
-#include "EXCEPT.h"
 
 namespace LIST {
-    using namespace EXCEPT;
     template <typename T>
     class List;
 
@@ -321,7 +319,6 @@ namespace LIST {
     	}
 
         void pushIn(const size_t k, const T text) {
-        	if (k > size) throw Except("out of range");
         	if (k == 0) {
         	    this->pushHead(text);
         	    return;
@@ -361,7 +358,6 @@ namespace LIST {
         }
         
         void popIn(const size_t k) {
-        	if (k > size) throw Except("out of range");
         	if (k == 0) {
         	    this->popHead();
         	    return;

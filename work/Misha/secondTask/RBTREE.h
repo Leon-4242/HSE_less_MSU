@@ -49,7 +49,6 @@ namespace RBTREE {
 
             friend std::ostream& operator<< (std::ostream& os, const node& n) {
                 if (&n == &node::null) return os << "\nLIST\n";
-                if (n.Value() < MROT) return os;
                 return os << "\nKey: " << n.Key() << " Value: " << n.Value() << "\n";
             }
 
@@ -157,10 +156,10 @@ namespace RBTREE {
                 if (key == n->Key()) n->Value() = value;
                 else if (key < n->Key()) {
                     node *tmp = insert(key, value, n->left);
-                    tmp->parent = n;
+                    tmp->parent = n; n->left = tmp;
                 } else {
                     node *tmp = insert(key, value, n->right);
-                    tmp->parent = n;
+                    tmp->parent = n; n->right = tmp;
                 }
             }
             insert_case1(n);
@@ -175,7 +174,7 @@ namespace RBTREE {
         void del_case6(node<K, V>* n);
 */
         void replace(node* n, node* child) {
-            child->parent = n->parent;
+            if (child != &node::null) child->parent = n->parent;
             if (n->parent->left == n) n->parent->left = child;
             else if (n->parent->right == n) n->parent->right = child;
         }
@@ -187,6 +186,7 @@ namespace RBTREE {
                 if (child->color == RED) child->color = BLACK;
                 else del_case1(child);
             }
+            if (n == root) root = child;
             delNode(n);
         }
 
