@@ -41,7 +41,7 @@ namespace poly {
             bool flag = true;
             for (auto iter = lst.begin(); iter != lst.end(); ++iter) {
                 if (flag) {
-                    if (*iter != 0) {
+                    if (*iter != 0.0) {
                         flag = false;
                         coef.pushBack(*iter);
                     }

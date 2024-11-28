@@ -1,2 +1,0 @@
-g++ SALARYBASE.cpp main.cpp
-

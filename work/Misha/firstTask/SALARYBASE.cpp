@@ -1,4 +1,4 @@
-#include "salarybase.h"
+#include "SALARYBASE.h"
 
 namespace SALARYBASE {
         size_t& SalaryBase::operator[] (const std::string& name) {

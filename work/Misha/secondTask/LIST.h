@@ -22,10 +22,9 @@ namespace LIST {
             T mes;
             Node* last;
             Node* next;
-
-            Node(const T text): mes(text) {
+            Node(const T& val = T()): mes(val) {
                 next = nullptr;
-                last = nullptr; 
+                last = nullptr;
             }
 
             ~Node() {
@@ -33,9 +32,8 @@ namespace LIST {
                 next = nullptr;
             }
 
-            T val(void) const {
-               return mes;
-            }
+            const T& val(void) const {return mes;}
+            T& val(void) {return  mes;}
         };
 
         class iterator {
@@ -45,10 +43,7 @@ namespace LIST {
             Node* pos;
             size_t index;
 
-            iterator (const List* list = nullptr, Node* node = nullptr, const size_t ind = 0): index(ind) {
-                lst = list;
-                pos = node;
-            }
+            iterator (const List* list = nullptr, Node *node = nullptr, const size_t ind = 1): lst(list), pos(node), index(ind) {}
 
             ~iterator(void) {
                 lst = nullptr;
@@ -109,7 +104,7 @@ namespace LIST {
             }
 
             size_t Index (void) {
-                return index;
+                return index-1;
             }
         };
 
@@ -120,10 +115,7 @@ namespace LIST {
             Node* pos;
             int index;
 
-            riterator (const List* list = nullptr, Node* node = nullptr, const size_t ind = 0): index(ind) {
-                lst = list;
-                pos = node;
-            }
+            riterator (const List* list = nullptr, Node* node = nullptr, const size_t ind = 1): lst(list), pos(node), index(ind) {}
 
             ~riterator(void) {
                 lst = nullptr;
@@ -180,19 +172,23 @@ namespace LIST {
             }
 
             size_t Index (void) {
-                return index;
+                return index-1;
             }
         };
 
         Node* head;
         Node* back;
+        Node* null;
         size_t size;
 
         public:
 
-        List(void){
+        List (void){
             head = nullptr;
             back = nullptr;
+            null = new Node();
+            null->last = back;
+            null->next = head;
             size = 0;
         }
 
@@ -210,6 +206,7 @@ namespace LIST {
                 back->next = nullptr;
                 size--;
             }
+            delete null;
         }
 
         List(const List& ls) {
@@ -226,6 +223,8 @@ namespace LIST {
                 back = back->next;
                 size++;
             }
+            null = new Node();
+            null->next = head; null->last = back;
         }
 
         List(List&& move) {
@@ -235,6 +234,8 @@ namespace LIST {
         	move.head = nullptr;
         	back = move.back;
         	move.back = nullptr;
+            null = move.null;
+            move.null = nullptr;
     	}
     	
         List& operator= (const List& ls) {
@@ -243,7 +244,7 @@ namespace LIST {
         	for (auto iter = ls.begin(); iter != ls.end(); ++iter) {
         	    this->pushBack(*iter);
         	}
-
+            null->next = head; null->last = back;
         	return *this;
     	}
     	
@@ -256,7 +257,8 @@ namespace LIST {
     	    move.head = nullptr;
     	    back = move.back;
     	    move.back = nullptr;
-	
+	        null = move.null;
+            move.null = nullptr;
    		    return *this;
     	}
 
@@ -271,6 +273,7 @@ namespace LIST {
 			back->next->last = back;
 			back = back->next;
         	size++;
+	        null->next = head; null->last = back;
 		}
 		
         void popBack(void) {
@@ -286,6 +289,7 @@ namespace LIST {
         	    back->next = nullptr;
         	}
         	size--;
+	        null->next = head; null->last = back;
     	}
 
         void pushHead(const T text) {
@@ -299,6 +303,7 @@ namespace LIST {
         	head->last->next = head;
         	head = head->last;
         	size++;
+	        null->next = head; null->last = back;
     	}
     	
         void popHead(void) {
@@ -312,6 +317,7 @@ namespace LIST {
         	    head->last = nullptr;
         	}
         	size--;
+	        null->next = head; null->last = back;
     	}
 
         void pushIn(const size_t k, const T text) {
@@ -333,6 +339,7 @@ namespace LIST {
         	block->last = iter.pos->last;
         	iter.pos->last = block;
         	size++;
+	        null->next = head; null->last = back;
     	}
 		 
         void pushIn (iterator iter, const T text) {
@@ -350,6 +357,7 @@ namespace LIST {
             block->last = iter.pos->last;
             iter.pos->last = block;
             size++;
+	        null->next = head; null->last = back;
         }
         
         void popIn(const size_t k) {
@@ -368,6 +376,7 @@ namespace LIST {
         	iter.pos->next->last = iter.pos->last;
         	delete iter.pos;
         	size--;
+	        null->next = head; null->last = back;
     	}     
 
         void popIn(iterator iter) {
@@ -384,6 +393,7 @@ namespace LIST {
             iter.pos->next->last = iter.pos->last;
             delete iter.pos;
             size--;
+	        null->next = head; null->last = back;
         }
         
         bool empty(void) const {
@@ -402,29 +412,31 @@ namespace LIST {
     	        res.back = res.back->next;
     	        res.size++;
     	    }
+	        null->next = head; null->last = back;
     	    return res;
-    	}
+        }
     	
         void clear (void) {
     	    while (size > 0) {
     	        this->popBack();
     	    }
+	        null->next = head; null->last = back;
     	}
 
         iterator begin(void)  const{
-            return iterator(this, head, 0);
+            return iterator(this, head, 1);
         }
 
         iterator end(void) const {
-            return iterator(this, back->next, size);
+            return iterator(this, null, size+1);
         }
 
         riterator rbegin(void) const {
-            return riterator(this, back, size-1);
+            return riterator(this, back, size);
         }
 
         riterator rend(void) const {
-            return riterator(this, head->last, -1);
+            return riterator(this, null, 0);
         }
 
     };

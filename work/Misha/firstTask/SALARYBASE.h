@@ -1,7 +1,8 @@
 #ifndef SALARYbase
 #define SALARYbase
 
-#include "RBTree.h"
+#define MROT 19242
+#include "RBTREE.h"
 
 namespace SALARYBASE {
     using namespace RBTREE;
@@ -36,6 +37,5 @@ namespace SALARYBASE {
     };
 }
 
-#endif
 #endif
 

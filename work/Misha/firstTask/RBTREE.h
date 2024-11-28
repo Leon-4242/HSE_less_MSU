@@ -2,7 +2,6 @@
 #define RedBlackTree
 
 #include <iostream>
-#define MROT 19242
 
 namespace RBTREE {
     enum COLOR {RED, BLACK};
@@ -25,9 +24,9 @@ namespace RBTREE {
             node(K k = K(), V val = V(), COLOR c = RED): key(k), value(val), color(c), parent(&null), left(&null), right(&null), flag(true) {}
 
             ~node(void) {
-                parent = NULL;
-                left = NULL;
-                right = NULL;
+                parent = nullptr;
+                left = nullptr;
+                right = nullptr;
             }
 
             node& operator= (const node& n) {
@@ -91,8 +90,8 @@ namespace RBTREE {
         }
 
         node* rotateL(node* a) {
-            node* b = a->right;
-            node* med = b->left; 
+            auto b = a->right;
+            auto med = b->left; 
             b->left = a;
             a->right = med;
             b->parent = a->parent;
@@ -101,8 +100,8 @@ namespace RBTREE {
         }
 
         node* rotateR(node* a) {
-            node* b = a->left;
-            node* med = b->right; 
+            auto b = a->left;
+            auto med = b->right; 
             b->right = a;
             a->left = med;
             b->parent = a->parent;
@@ -379,6 +378,7 @@ namespace RBTREE {
                 }
                 n = (n->Key() > key) ? n->left : n->right;
             }
+            exit(-1);
         }
 
         void insert(const K& key, const V& value) {

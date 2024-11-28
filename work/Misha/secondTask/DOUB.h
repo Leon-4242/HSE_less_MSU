@@ -39,6 +39,7 @@ namespace DUOB{
         friend doub powD(doub base, size_t exp);
         friend std::ostream& operator<< (std::ostream& os, const doub& d);
         friend std::istream& operator>> (std::istream& is, doub& d);
+        double operator()(void) const {return val;}
 };
     std::ostream& operator<< (std::ostream& os, const doub& d) {
         return os << d.val;

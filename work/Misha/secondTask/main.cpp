@@ -6,7 +6,8 @@ int main(void) {
     Aproximator func;
     func[1] = 1;
     std::cout << func << std::endl;
-    func[2] = 3;
+    func(2, 3);
     std::cout << func << std::endl;
+    std::cout << func(4) << std::endl;
     return 0;
 }

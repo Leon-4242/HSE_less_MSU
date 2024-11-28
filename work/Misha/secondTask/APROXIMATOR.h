@@ -35,15 +35,16 @@ namespace APROXIMATOR {
         List<doub> coord;
         RBTree< Pair<size_t, size_t> /*KEY*/, doub /*VALUE*/> coefNewton;
         polynom p;
+        bool actual;
 
         public:
-        Aproximator(void): points(), coord(), coefNewton(), p() {}
-        Aproximator(const Aproximator& app): points(app.points), coord(app.coord), coefNewton(app.coefNewton), p(app.p) {}
-        Aproximator& operator= (const Aproximator& app) {points = app.points; coord = app.coord; coefNewton = app.coefNewton; p = app.p; return *this;}
+        Aproximator(void): points(), coord(), coefNewton(), p(), actual(true) {}
+        Aproximator(const Aproximator& app): points(app.points), coord(app.coord), coefNewton(app.coefNewton), p(app.p), actual(app.actual) {}
+        Aproximator& operator= (const Aproximator& app) {points = app.points; coord = app.coord; coefNewton = app.coefNewton; p = app.p; actual = app.actual; return *this;}
         ~Aproximator(void) {}
 
         doub& operator[] (const doub& x) {
-            doub y = 0.0;
+            doub y = 0.0; actual = false;
             if (points.find(x, y)) return points[x];
             points.insert(x, y);
             coord.pushBack(x);
@@ -51,10 +52,9 @@ namespace APROXIMATOR {
         }
 
         void mkCoef(void) {
-            for (size_t k = 0; k < points.Num()+1; ++k) {
-                for (auto iter = coord.begin(), it = coord.begin() + k; it.Index() < points.Num()+1; ++iter, ++it) {
+            for (size_t k = 0; k < points.Num(); ++k) {
+                for (auto iter = coord.begin(), it = iter + k; it.Index() < points.Num(); ++iter, ++it) {
                     doub buff = 0;
-                    if (coefNewton.find(Pair(k, iter.Index()), buff)) continue;
                     if (k == 0) buff = points[*iter];
                     else buff = (coefNewton[Pair(k-1, iter.Index()+1)]-coefNewton[Pair(k-1, iter.Index())])/(*(it)-(*iter));
                     coefNewton.insert(Pair(k, iter.Index()) , buff);
@@ -63,16 +63,35 @@ namespace APROXIMATOR {
         }
 
         void mkPoly(void) {
-            polynom tmp(doub(1));
+            polynom tmp(1);
+            p = polynom();
             for (auto iter = coord.begin(); iter != coord.end(); ++iter) {
-                p += tmp*(coefNewton[Pair(iter.Index(), (size_t)0)]);
+                p += tmp * (coefNewton[Pair(iter.Index(), (size_t)0)]);
                 tmp *= polynom(1, 1)-(*iter);
             }
         }
 
+        void operator() (const doub& x, const doub &y) {
+            doub tmp = y;
+            if (!points.find(x, tmp)) coord.pushBack(x);
+            points.insert(x, y);
+            mkCoef();
+            mkPoly();
+            actual = true;
+        }
+
+        double operator() (const doub& x) {
+            if (!actual) {
+                mkCoef(); mkPoly();
+            }
+            return (p(x))();
+        }
+
         friend std::ostream& operator<< (std::ostream& os, Aproximator& app) {
-            app.mkCoef();
-            app.mkPoly();
+            if (!app.actual) {
+                app.mkCoef();
+                app.mkPoly();
+            }
             return os << app.p;
         }
     };

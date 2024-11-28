@@ -1,4 +1,4 @@
-#include "salarybase.h"
+#include "SALARYBASE.h"
 
 using namespace SALARYBASE;
 
