@@ -44,16 +44,14 @@ int main(int argc, char* argv[]) {
 			return -1;
 	}
 
-	output(r, n, n, array);
-
 	result = (double*)malloc(n*n*sizeof(double));
 	d = (double*)malloc(n*sizeof(double));
 	flag = reflection_inverse(n, array, result, &t1, d);
-	/*
-	...
-	...
-	...
-	*/
+	
+	output(r, n, n, array);
+	printf("\n");
+	output(r, 1, n, d);
+	printf("\n");
 	res = input(s, filename, n, array);	
 	if (!flag) {
 		output(r, n, n, result);
