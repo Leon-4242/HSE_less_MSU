@@ -16,4 +16,4 @@ reflection_inverse.o:
 
 
 clear:
-	rm *.o app
+	rm *.o
