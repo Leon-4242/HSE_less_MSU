@@ -6,7 +6,7 @@
 
 int main(int argc, char* argv[]) {
 	int n = 0, r = 0, s = 0, task = 0, flag = 0, res = 0, i = 0, k = 0;
-	char* filename = NULL; double* array = NULL, *result = NULL, *d = NULL, *b = NULL; int *indi = NULL;
+	char* filename = NULL; double* array = NULL, *result = NULL, *b = NULL; int *indi = NULL;
 	double r1 = 0, r2 = 0, t1 = 0, t2 = 0, sum = 0;
 	
 	task = 15;
