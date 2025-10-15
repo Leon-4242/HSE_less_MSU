@@ -8,6 +8,10 @@ int reflection_inverse(int n, double* a, double* res, double* time, double* d) {
 	double s = 0, norm_a1 = 0, norm_x = 0, prod = 0;
 
 	for (i = 0; i < n; ++i) {
+		d[i] = 0.;
+	}
+
+	for (i = 0; i < n; ++i) {
 		for (j = 0; j < n; ++j) {
 			res[i*n+j] = (i == j ? 1 : 0);
 		}
