@@ -4,8 +4,8 @@
 int jordan_linear(int n, double* a, double* res, double* b, double* time, int* indi) {
 	struct timeval start, end;
     long long start_us, end_us;
-	int i = 0, j = 0, k = 0, t = 0, n_max = 0, buff = 0;
-	double max = 0, s = 0, norm_a1 = 0, norm_x = 0, prod = 0;
+	int i = 0, j = 0, k = 0, n_max = 0, buff = 0;
+	double max = 0;
 
 	gettimeofday(&start, NULL);
 
