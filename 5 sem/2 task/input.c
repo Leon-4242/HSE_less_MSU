@@ -41,7 +41,7 @@ double formula(int s, int n, int i, int j) {
 			return n- (i > j ? i : j);
 		case 2:
 			if (i == j) return 2;
-			else if (i == j+1 || j = i+1) return -1;
+			else if (i == j+1 || j == i+1) return -1;
 			return 0;
 		case 3:
 			if (i == j && j < n-1) return 1;

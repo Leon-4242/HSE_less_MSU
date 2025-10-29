@@ -1,5 +1,5 @@
 all: main lib
-	gcc main.o input.o output.o qr_3diagonal.o -o app -lm
+	gcc -g main.o input.o output.o qr_3diagonal.o -o app -lm
 main:
 	gcc main.c -c
 
@@ -12,7 +12,7 @@ output.o:
 	gcc output.c -c
 
 qr_3diagonal.o:
-	gcc qr_3diagonal.c -c
+	gcc -g qr_3diagonal.c -c
 
 
 clear:
