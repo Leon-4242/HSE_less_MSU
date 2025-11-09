@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
 			return -1;
 	}
 
-	result = (double*)malloc(n*n*sizeof(double));
+	result = (double*)malloc(n*sizeof(double));
 	
 	printf("\n Data: \n");
 	output(r, n, n, array);
