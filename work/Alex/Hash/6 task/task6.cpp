@@ -13,10 +13,10 @@ struct TreeNode {
 class RollingHash {
 private:
     const size_t p = 31;
-    const size_t m = 1e9 + 9;
-    std::vector<size_t> p_pow;
-
 public:
+	const size_t m = 1e9 + 9;
+	std::vector<size_t> p_pow;
+
     RollingHash(size_t max_len) {
         p_pow.resize(max_len + 1);
         p_pow[0] = 1;
@@ -33,7 +33,7 @@ public:
         return hash_value;
     }
 
-    size_t rollingHash(size_t old_hash, char old_char, char new_char, size_t len) {
+    size_t rollingHash(size_t old_hash, char old_char, char new_char) {
         size_t new_hash = (old_hash - (old_char - 'a' + 1) + m) % m;
         new_hash = (new_hash * p) % m;
         new_hash = (new_hash + (new_char - 'a' + 1)) % m;
@@ -47,7 +47,6 @@ void countPaths(TreeNode* node, const std::string &s, std::string &currentPath, 
     }
 
     currentPath += node->data;
-    size_t current_hash = rh.computeHash(currentPath);
 
     if (currentPath.length() >= s_len) {
         size_t start_index = currentPath.length() - s_len;
