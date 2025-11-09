@@ -130,6 +130,8 @@ public:
     }
 };
 
+std::vector<size_t> findSubstringIndices(const std::string&, const std::string&);
+
 int main() {
 	std::string s{}, t{};
 	std::cin >> s >> t;
@@ -188,14 +190,4 @@ std::vector<size_t> findSubstringIndices(const std::string& s, const std::string
     }
 
     return indices;
-}
-
-int main() {
-	std::string s{}, t{};
-	std::cin >> s >> t;
-
-	std::vector<size_t> result = findSubstringIndices(s, t);
-	for (auto& item: result)
-        std::cout << "i: " << item << std::endl;
-    return 0;
 }
