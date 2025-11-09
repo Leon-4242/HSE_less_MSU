@@ -146,7 +146,8 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 			for (i = 0; i < m; ++i) {a[i*n+i] += s_k;}
 			++iter;
 
-//			printf("\n\n iter = %d; m = %d\n", iter, m);
+			printf("\n\n iter = %d; m = %d\n", iter, m);
+			printf("\nelem = %e\n",fabs(a[(m-1)*n+m-2]));
 //			output(n, n, n, a);
 //			printf("\n");
 		}
