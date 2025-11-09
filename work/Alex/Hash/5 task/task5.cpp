@@ -4,7 +4,8 @@
 #include <algorithm>
 
 class SubstringInfo {
-    int l;
+	public:
+	int l;
     int r;
     std::string substring;
 
