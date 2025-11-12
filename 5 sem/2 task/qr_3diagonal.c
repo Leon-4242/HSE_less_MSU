@@ -25,6 +25,8 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 		else if (norm_A < sum) {norm_A = sum;}
 	}
 
+//	printf("\n\nnorm_A = %e\n",norm_A);
+
 	for (k = 0; k < n-2; ++k) {
 		/* 
 		 *	k+1, k     k+1, n
@@ -32,6 +34,7 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 		 *	n, k       n, n
 		 */
 		for (i = k+2; i < n; ++i) {
+			if (fabs(a[i*n+k]) < eps) continue;
 			tmp = sqrt(a[(k+1)*n+k]*a[(k+1)*n+k] + a[i*n+k]*a[i*n+k]);
 			if (fabs(tmp) < 1e-15) continue;
 			cos = a[(k+1)*n+k]/tmp; sin = - a[i*n+k]/tmp;
@@ -72,17 +75,22 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 
 	*t1 = (double)(end_us - start_us) / 1000000.;
 
-//	printf("\n\nSym: \n");
-//	output(n, n, n, a);
-//	printf("\n");
+	printf("\n\nSym: \n");
+	output(n, n, n, a);
+	printf("\n");
 
 	gettimeofday(&start, NULL);
 
 	while (m > 2) {
 		while (fabs(a[(m-1)*n+m-2]) > eps*norm_A) {
+//			if(iter > 7) break;
 			s_k = a[(m-1)*n+(m-1)];
 			for (i = 0; i < m; ++i) {a[i*n+i] -= s_k;}
-			
+		
+			printf("\nbefore iter %d\n", iter+1);
+			output(n, n, n, a);
+			printf("\n");
+
 			for (k = 0; k < m; ++k) {
 				s = 0;
 				for (i = k+1; i < min(k+2, m); ++i) {s += a[i*n+k]*a[i*n+k];}
@@ -147,9 +155,9 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 			++iter;
 
 			printf("\n\n iter = %d; m = %d\n", iter, m);
-			printf("\nelem = %e\n",fabs(a[(m-1)*n+m-2]));
-//			output(n, n, n, a);
-//			printf("\n");
+//			printf("\nelem = %e\n",fabs(a[(m-1)*n+m-2]));
+			output(n, n, n, a);
+			printf("\n");
 		}
 		res[m-1] = a[(m-1)*n+(m-1)];
 		--m;
@@ -171,6 +179,10 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 	*t2 = (double)(end_us - start_us) / 1000000.;
 
 	*its = iter;
+
+	for (i = 0; i < n; ++i) {
+		res[i] = a[i*n+i];
+	}
 	return 0;
 }
 
