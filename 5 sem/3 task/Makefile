@@ -1,2 +1,2 @@
 all:
-	gcc -o backery test.c -lpthread
+	gcc -o backery backery.c -lpthread
