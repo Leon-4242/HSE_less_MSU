@@ -7,6 +7,7 @@
 
 #define MAX_THREADS 100
 
+
 // Структура для передачи аргументов в поток
 typedef struct {
     sem_t* sem_b;

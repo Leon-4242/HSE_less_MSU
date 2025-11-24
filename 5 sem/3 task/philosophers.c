@@ -28,6 +28,30 @@ void* eat(void* arg) {
 		sleep((rand()%5)+1);
 		sem_wait(args->fork_r);
 		printf("\n Philosopher number %d took right fork\n", args->n);
+	
+		sleep((rand()%5)+1);
+		printf("\nI ate? Yes, I ate. (%d)", args->n);
+
+		sem_post(args->fork_l);
+		sem_post(args->fork_r);
+
+		sleep((rand()%5)+1);
+	}
+	return NULL;
+}
+
+void* chosen_eat(void* arg) {
+    ThreadArgs* args;
+
+   	args = (ThreadArgs*)arg;
+//	time = (rand()%5)+1;
+
+	while(1) {
+		sem_wait(args->fork_r);
+		printf("\n Chosen philosopher (number %d) took right fork\n", args->n);
+		sleep((rand()%5)+1);
+		sem_wait(args->fork_l);
+		printf("\n Chosen philosopher (number %d) took left fork\n", args->n);
 
 		
 		sleep((rand()%5)+1);
@@ -39,10 +63,11 @@ void* eat(void* arg) {
 		printf("\nI ate? Yes, I ate. (%d)", args->n);
 	}
 	return NULL;
+
 }
 
 int main(int argc, char* argv[]) {
-	int NumberPhilosophers = 0, i = 0;
+	int NumberPhilosophers = 0, i = 0, chosen_number = 0;
 	pthread_t* threads; sem_t* forks;
 	ThreadArgs* args;
 
@@ -77,9 +102,10 @@ int main(int argc, char* argv[]) {
 		(args+i)->fork_r = forks+(i+1)%NumberPhilosophers;
 	}
 
+	chosen_number = rand()%NumberPhilosophers;
     // Создание потоков
 	for (i = 0; i < NumberPhilosophers; i++) {
-        if (pthread_create(threads+i, NULL, eat, args+i) != 0) {
+        if (pthread_create(threads+i, NULL, (i == chosen_number) ? chosen_eat : eat, args+i) != 0) {
             fprintf(stderr, "Failed to create \"Philosopher\".\n");
             return 1;
         }

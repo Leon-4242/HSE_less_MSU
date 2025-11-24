@@ -9,8 +9,9 @@
 
 // Структура для передачи аргументов в поток
 typedef struct {
-    sem_t* fork_l;
-	sem_t* fork_r;
+    pthread_mutex_t* fork_l;
+	pthread_mutex_t* fork_r;
+	sem_t* glutton_sem;
 	int n;
 } ThreadArgs;
 
@@ -23,27 +24,35 @@ void* eat(void* arg) {
 //	time = (rand()%5)+1;
 
 	while(1) {
-		sem_wait(args->fork_l);
+		pthread_mutex_lock(args->fork_l);
 		printf("\n Philosopher number %d took left fork\n", args->n);
 		sleep((rand()%5)+1);
-		sem_wait(args->fork_r);
+		pthread_mutex_lock(args->fork_r);
 		printf("\n Philosopher number %d took right fork\n", args->n);
-
-		
-		sleep((rand()%5)+1);
-		
-		sem_post(args->fork_l);
-		sem_post(args->fork_r);
-
+	
 		sleep((rand()%5)+1);
 		printf("\nI ate? Yes, I ate. (%d)", args->n);
+
+		pthread_mutex_unlock(args->fork_l);
+		pthread_mutex_unlock(args->fork_r);
+
+		sleep((rand()%5)+1);
 	}
 	return NULL;
 }
 
+void* glutton_eat(void* arg) {
+	ThreadArgs* args;
+	args = (ThreadArgs*)arg;
+
+	while(1) {
+		
+	}
+}
+
 int main(int argc, char* argv[]) {
-	int NumberPhilosophers = 0, i = 0;
-	pthread_t* threads; sem_t* forks;
+	int NumberPhilosophers = 0, NumberGluttons = 0, i = 0;
+	pthread_t* threads; pthread_mutex_t* forks;  sem_t sem;
 	ThreadArgs* args;
 
     if (argc != 2) {
@@ -60,13 +69,13 @@ int main(int argc, char* argv[]) {
     }
 
 	threads = (pthread_t*)malloc(NumberPhilosophers*sizeof(pthread_t));
-	forks = (sem_t*)malloc(NumberPhilosophers*sizeof(sem_t));
+	forks = (pthread_mutex_t*)malloc(NumberPhilosophers*sizeof(pthread_mutex_t));
 	args = (ThreadArgs*)malloc(NumberPhilosophers*sizeof(ThreadArgs));
 
     // Инициализация семафора
 	for (i = 0; i < NumberPhilosophers; ++i) {
-		if(sem_init(forks+i, 0, 1) != 0) {
-		    fprintf(stderr, "Failed to initialize semaphore");
+		if(pthread_mutex_init(forks+i, NULL) != 0) {
+		    fprintf(stderr, "Failed to initialize mutex");
 			return 1;
 		}
 	}
@@ -77,9 +86,14 @@ int main(int argc, char* argv[]) {
 		(args+i)->fork_r = forks+(i+1)%NumberPhilosophers;
 	}
 
+	if (sem_init(&sem, NULL, 2) != 0) {
+		fprintf(stderr, "Failed to initialize sem");
+		return 1;
+	}
+	NumberGluttons = ;
     // Создание потоков
 	for (i = 0; i < NumberPhilosophers; i++) {
-        if (pthread_create(threads+i, NULL, eat, args+i) != 0) {
+        if (pthread_create(threads+i, NULL, (i % 2 == 0 && i/2 <= NumberGluttons) ? glutton_eat : eat, args+i) != 0) {
             fprintf(stderr, "Failed to create \"Philosopher\".\n");
             return 1;
         }
@@ -95,7 +109,7 @@ int main(int argc, char* argv[]) {
 
     // Уничтожение семафора
 	for (i = 0; i < NumberPhilosophers; ++i) {
-		sem_destroy((forks+i));
+		pthread_mutex_destroy((forks+i));
 	}	
 
 	free(forks);
