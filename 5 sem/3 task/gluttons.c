@@ -13,6 +13,7 @@ typedef struct {
 	pthread_mutex_t* fork_r;
 	sem_t* glutton_sem;
 	int n;
+	int* hunger;
 } ThreadArgs;
 
 
@@ -21,25 +22,23 @@ void* glutton_eat(void*);
 
 // Функция, которую выполняет каждый философ
 void* eat(void* arg) {
-    ThreadArgs* args; int hunger = 0;
+    ThreadArgs* args;
 
    	args = (ThreadArgs*)arg;
 //	time = (rand()%5)+1;
 
 	while(1) {
-		printf("\nPhilosopher %d: hunger: %d\n", args->n, hunger);
-		
-		sleep(rand()%2);
+//		sleep(rand()%2);
 		pthread_mutex_lock(args->fork_l);
 //		printf("\nPhilosopher number %d took left fork\n", args->n);
-		sleep(rand()%2);
+//		sleep(rand()%2);
 		if (pthread_mutex_trylock(args->fork_r)) {
 			pthread_mutex_unlock(args->fork_l);
-			++hunger;
+			++(*(args->hunger));
 			sleep(rand()%2);
 		} else {
 //			printf("\nPhilosopher number %d took right fork\n", args->n);
-			hunger = 0;
+			*(args->hunger) = 0;
 			sleep(rand()%2);
 
 			pthread_mutex_unlock(args->fork_l);
@@ -50,21 +49,20 @@ void* eat(void* arg) {
 }
 
 void* glutton_eat(void* arg) {
-	ThreadArgs* args; int hunger = 0;
+	ThreadArgs* args;
 	args = (ThreadArgs*)arg;
 
 	while(1) {
-		printf("\nGlutton %d: hunger: %d\n", args->n, hunger);
-		sleep(rand()%2);
+		//sleep(rand()%2);
 		
 		pthread_mutex_lock(args->fork_l);
 //		printf("\nGlutton number %d took left fork\n", args->n);
-		sleep(rand()%2);
+		//sleep(rand()%2);
 		pthread_mutex_lock(args->fork_r);
 //		printf("\nGlutton number %d took right fork\n", args->n);
 		sem_post(args->glutton_sem);
 
-		hunger = 0;
+		*(args->hunger) = 0;
 		sleep(rand()%2);
 
 		sem_wait(args->glutton_sem);
@@ -77,7 +75,7 @@ void* glutton_eat(void* arg) {
 int main(int argc, char* argv[]) {
 	int NumberPhilosophers = 0, NumberGluttons = 0, i = 0;
 	pthread_t* threads; pthread_mutex_t* forks;  sem_t sem;
-	ThreadArgs* args;
+	ThreadArgs* args; int* hunger;
 
     if (argc != 2) {
         fprintf(stderr, "Wrong data.\nNeed: NumberPhilosophers");
@@ -95,6 +93,7 @@ int main(int argc, char* argv[]) {
 	threads = (pthread_t*)malloc(NumberPhilosophers*sizeof(pthread_t));
 	forks = (pthread_mutex_t*)malloc(NumberPhilosophers*sizeof(pthread_mutex_t));
 	args = (ThreadArgs*)malloc(NumberPhilosophers*sizeof(ThreadArgs));
+	hunger = (int*)malloc(NumberPhilosophers*sizeof(int));
 
     // Инициализация семафора
 	for (i = 0; i < NumberPhilosophers; ++i) {
@@ -102,6 +101,7 @@ int main(int argc, char* argv[]) {
 		    fprintf(stderr, "Failed to initialize mutex");
 			return 1;
 		}
+		hunger[i] = 0;
 	}
 
 	if (sem_init(&sem, 0, 0) != 0) {
@@ -114,6 +114,7 @@ int main(int argc, char* argv[]) {
 		(args+i)->fork_l = forks+i;
 		(args+i)->fork_r = forks+(i+1)%NumberPhilosophers;
 		(args+i)->glutton_sem = &sem;
+		(args+i)->hunger = (hunger+i);
 	}
 
 	NumberGluttons = NumberPhilosophers/2;
@@ -125,6 +126,14 @@ int main(int argc, char* argv[]) {
         }
 		if (i == 0) sem_wait(&sem);
     }
+
+	while(1) {
+		sleep(5);
+		printf("\nHunger  Number\n");
+		for (i = 0; i < NumberPhilosophers; ++i) {
+			printf("%d       %d\n", hunger[i], i);
+		}
+	}
 
     // Ожидание завершения всех потоков
     for (int i = 0; i < NumberPhilosophers; i++) {
@@ -142,6 +151,8 @@ int main(int argc, char* argv[]) {
 	free(forks);
 	free(args);
 	free(threads);
+	free(hunger);
+
     return 0;
 }
 
