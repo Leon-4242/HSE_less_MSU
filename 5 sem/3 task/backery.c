@@ -15,6 +15,8 @@ typedef struct {
 	int *goal;
 } ThreadArgs;
 
+void* backer(void*);
+void* customer(void*);
 
 // Функция, которую выполняет каждый пекарь
 void* backer(void* arg) {
@@ -57,7 +59,8 @@ void* customer(void* arg){
 
 int main(int argc, char* argv[]) {
 	int NumberBackers = 0, NumberCustomers = 0, counter = 0, n = 0, i = 0, goal = 0;
-	pthread_t* threads;
+	pthread_t* threads; sem_t SemBunsCustomer, SemBunsBacker; ThreadArgs args;
+
     if (argc != 4) {
         fprintf(stderr, "Wrong arguments.\nNeed: NumberBackers NumberCustomers counter\n");
         return 1;
@@ -75,7 +78,6 @@ int main(int argc, char* argv[]) {
     }
 
 	threads = (pthread_t*)malloc(n*sizeof(pthread_t));
-	sem_t SemBunsCustomer, SemBunsBacker;
 
     // Инициализация семафора
     if (sem_init(&SemBunsCustomer, 0, 0) != 0 || sem_init(&SemBunsBacker, 0, counter) != 0) {
@@ -86,7 +88,9 @@ int main(int argc, char* argv[]) {
 	goal = counter;
 
     // Аргументы для потоков
-    ThreadArgs args = {&SemBunsBacker, &SemBunsCustomer, &goal};
+    args.sem_b = &SemBunsBacker;
+	args.sem_c = &SemBunsCustomer;
+	args.goal =	&goal;
 
     // Создание потоков
 	for (i = 0; i < NumberBackers; i++) {
@@ -106,7 +110,7 @@ int main(int argc, char* argv[]) {
     // Ожидание завершения всех потоков
     for (int i = 0; i < n; i++) {
         if (pthread_join(threads[i], NULL) != 0) {
-            perror("Failed to join thread");
+            fprintf(stderr, "Failed to join thread");
             return 1;
         }
     }

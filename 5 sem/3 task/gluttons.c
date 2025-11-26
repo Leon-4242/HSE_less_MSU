@@ -16,37 +16,61 @@ typedef struct {
 } ThreadArgs;
 
 
+void* eat(void*);
+void* glutton_eat(void*);
+
 // Функция, которую выполняет каждый философ
 void* eat(void* arg) {
-    ThreadArgs* args;
+    ThreadArgs* args; int hunger = 0;
 
    	args = (ThreadArgs*)arg;
 //	time = (rand()%5)+1;
 
 	while(1) {
+		printf("\nPhilosopher %d: hunger: %d\n", args->n, hunger);
+		
+		sleep(rand()%2);
 		pthread_mutex_lock(args->fork_l);
-		printf("\n Philosopher number %d took left fork\n", args->n);
-		sleep((rand()%5)+1);
-		pthread_mutex_lock(args->fork_r);
-		printf("\n Philosopher number %d took right fork\n", args->n);
-	
-		sleep((rand()%5)+1);
-		printf("\nI ate? Yes, I ate. (%d)", args->n);
+//		printf("\nPhilosopher number %d took left fork\n", args->n);
+		sleep(rand()%2);
+		if (pthread_mutex_trylock(args->fork_r)) {
+			pthread_mutex_unlock(args->fork_l);
+			++hunger;
+			sleep(rand()%2);
+		} else {
+//			printf("\nPhilosopher number %d took right fork\n", args->n);
+			hunger = 0;
+			sleep(rand()%2);
 
-		pthread_mutex_unlock(args->fork_l);
-		pthread_mutex_unlock(args->fork_r);
-
-		sleep((rand()%5)+1);
+			pthread_mutex_unlock(args->fork_l);
+			pthread_mutex_unlock(args->fork_r);
+		}
 	}
 	return NULL;
 }
 
 void* glutton_eat(void* arg) {
-	ThreadArgs* args;
+	ThreadArgs* args; int hunger = 0;
 	args = (ThreadArgs*)arg;
 
 	while(1) {
+		printf("\nGlutton %d: hunger: %d\n", args->n, hunger);
+		sleep(rand()%2);
 		
+		pthread_mutex_lock(args->fork_l);
+//		printf("\nGlutton number %d took left fork\n", args->n);
+		sleep(rand()%2);
+		pthread_mutex_lock(args->fork_r);
+//		printf("\nGlutton number %d took right fork\n", args->n);
+		sem_post(args->glutton_sem);
+
+		hunger = 0;
+		sleep(rand()%2);
+
+		sem_wait(args->glutton_sem);
+
+		pthread_mutex_unlock(args->fork_r);
+		pthread_mutex_unlock(args->fork_l);
 	}
 }
 
@@ -80,23 +104,26 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
+	if (sem_init(&sem, 0, 0) != 0) {
+		fprintf(stderr, "Failed to initialize sem");
+		return 1;
+	}
+
 	for (i = 0; i < NumberPhilosophers; ++i) {
 		(args+i)->n = i;
 		(args+i)->fork_l = forks+i;
 		(args+i)->fork_r = forks+(i+1)%NumberPhilosophers;
+		(args+i)->glutton_sem = &sem;
 	}
 
-	if (sem_init(&sem, NULL, 2) != 0) {
-		fprintf(stderr, "Failed to initialize sem");
-		return 1;
-	}
-	NumberGluttons = ;
+	NumberGluttons = NumberPhilosophers/2;
     // Создание потоков
 	for (i = 0; i < NumberPhilosophers; i++) {
         if (pthread_create(threads+i, NULL, (i % 2 == 0 && i/2 <= NumberGluttons) ? glutton_eat : eat, args+i) != 0) {
             fprintf(stderr, "Failed to create \"Philosopher\".\n");
             return 1;
         }
+		if (i == 0) sem_wait(&sem);
     }
 
     // Ожидание завершения всех потоков

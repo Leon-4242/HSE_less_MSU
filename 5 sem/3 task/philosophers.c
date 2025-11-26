@@ -14,6 +14,8 @@ typedef struct {
 	int n;
 } ThreadArgs;
 
+void* eat(void*);
+void* chosen_eat(void*);
 
 // Функция, которую выполняет каждый философ
 void* eat(void* arg) {
@@ -23,19 +25,18 @@ void* eat(void* arg) {
 //	time = (rand()%5)+1;
 
 	while(1) {
+		sleep(rand()%2);
 		sem_wait(args->fork_l);
 		printf("\n Philosopher number %d took left fork\n", args->n);
-		sleep((rand()%5)+1);
+		sleep(rand()%2);
 		sem_wait(args->fork_r);
 		printf("\n Philosopher number %d took right fork\n", args->n);
 	
-		sleep((rand()%5)+1);
+		sleep(rand()%2);
 		printf("\nI ate? Yes, I ate. (%d)", args->n);
 
-		sem_post(args->fork_l);
 		sem_post(args->fork_r);
-
-		sleep((rand()%5)+1);
+		sem_post(args->fork_l);
 	}
 	return NULL;
 }
@@ -47,20 +48,19 @@ void* chosen_eat(void* arg) {
 //	time = (rand()%5)+1;
 
 	while(1) {
+		sleep(rand()%2);
 		sem_wait(args->fork_r);
 		printf("\n Chosen philosopher (number %d) took right fork\n", args->n);
-		sleep((rand()%5)+1);
+		sleep(rand()%2);
 		sem_wait(args->fork_l);
 		printf("\n Chosen philosopher (number %d) took left fork\n", args->n);
 
-		
-		sleep((rand()%5)+1);
-		
+		sleep(rand()%2);
+		printf("\nI ate? Yes, I ate. (%d)", args->n);
+
+
 		sem_post(args->fork_l);
 		sem_post(args->fork_r);
-
-		sleep((rand()%5)+1);
-		printf("\nI ate? Yes, I ate. (%d)", args->n);
 	}
 	return NULL;
 

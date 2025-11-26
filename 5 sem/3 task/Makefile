@@ -1,4 +1,4 @@
-all: backery philosophers_deadlock philosophers
+all: backery philosophers_deadlock philosophers gluttons
 
 backery: Backery_lib
 	gcc -g backery.o -o backery -lpthread
@@ -17,6 +17,12 @@ philosophers: Philosophers_lib
 
 Philosophers_lib:
 	gcc philosophers.c -c -lpthread
+
+gluttons: Gluttons_lib
+	gcc -g gluttons.o -o gluttons -lpthread
+
+Gluttons_lib:
+	gcc gluttons.c -c -lpthread
 
 clear:
 	rm *.o
