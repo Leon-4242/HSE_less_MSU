@@ -10,7 +10,8 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
     long long start_us, end_us;
 	int i = 0, j = 0, k = 0, iter = 0, m = 0, t = 0;
 	double cos = 0, sin = 0, tmp = 0, norm_A = 0, sum = 0, 
-		   s_k = 0, norm_a1 = 0, prod = 0, norm_x = 0, s = 0;
+		   s_k = 0, 
+		   norm_a1 = 0, prod = 0, norm_x = 0, s = 0;
 	double x_k[2] = {0, 0}, x_old[2] = {0, 0};
 
 	m = n;
