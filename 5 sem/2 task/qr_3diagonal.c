@@ -8,7 +8,7 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 //page 126 - qr for 3diagonal by reflection
 	struct timeval start, end;
     long long start_us, end_us;
-	int i = 0, j = 0, k = 0, iter = 0, m = 0, t = 0;
+	int i = 0, j = 0, k = 0, iter = 0, m = 0, t = 0, iterk = 0;
 	double cos = 0, sin = 0, tmp = 0, norm_A = 0, sum = 0, 
 		   s_k = 0, norm_a1 = 0, prod = 0, norm_x = 0, s = 0;
 	double x_k[2] = {0, 0}, x_old[2] = {0, 0};
@@ -82,14 +82,15 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 	gettimeofday(&start, NULL);
 
 	while (m > 2) {
+		iterk = 0;
 		while (fabs(a[(m-1)*n+m-2]) > eps*norm_A) {
 //			if(iter > 7) break;
 			s_k = a[(m-1)*n+(m-1)];
 			for (i = 0; i < m; ++i) {a[i*n+i] -= s_k;}
 		
-			printf("\nbefore iter %d\n", iter+1);
-			output(n, n, n, a);
-			printf("\n");
+//			printf("\nbefore iter %d\n", iter+1);
+//			output(n, n, n, a);
+//			printf("\n");
 
 			for (k = 0; k < m; ++k) {
 				s = 0;
@@ -152,21 +153,23 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 			}
 
 			for (i = 0; i < m; ++i) {a[i*n+i] += s_k;}
-			++iter;
-
-			printf("\n\n iter = %d; m = %d\n", iter, m);
+			++iterk;
+			
+			if (iterk > 50) {printf("\nm = %d\n", m); break;}
+			printf("\n\n iter = %d; m = %d\n", iterk, m);
 //			printf("\nelem = %e\n",fabs(a[(m-1)*n+m-2]));
 			output(n, n, n, a);
 			printf("\n");
 		}
 		res[m-1] = a[(m-1)*n+(m-1)];
+		iter += iterk;
 		--m;
 	}
 
 	if (m == 2) {
 		tmp = sqrt((a[0]-a[n+1])*(a[0]-a[n+1])+4*a[n]*a[1]);
-		res[0] = (a[0]+a[n+1]+tmp)/2;
-		res[1] = (a[0]+a[n+1]-tmp)/2;
+		res[0] = (a[0]+a[n+1]+tmp)/2.;
+		res[1] = (a[0]+a[n+1]-tmp)/2.;
 	} else if (m == 1) {
 		res[0] = a[0];
 	}
@@ -179,10 +182,6 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 	*t2 = (double)(end_us - start_us) / 1000000.;
 
 	*its = iter;
-
-	for (i = 0; i < n; ++i) {
-		res[i] = a[i*n+i];
-	}
 	return 0;
 }
 

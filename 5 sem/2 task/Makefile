@@ -3,15 +3,15 @@ all: main lib
 main:
 	gcc main.c -c
 
-lib: input.o output.o qr_3diagonal.o
+lib: input output qr_3diagonal
 
-input.o:
+input:
 	gcc input.c -c
 
-output.o:
+output:
 	gcc output.c -c
 
-qr_3diagonal.o:
+qr_3diagonal:
 	gcc -g qr_3diagonal.c -c
 
 

@@ -29,6 +29,11 @@ void* eat(void* arg) {
 
 	while(1) {
 //		sleep(rand()%2);
+//		if (pthread_mutex_trylock(args->fork_l)) {
+//			++(*args->hunger);
+//			sleep(rand()%2);
+//			continue;
+//		}	
 		pthread_mutex_lock(args->fork_l);
 //		printf("\nPhilosopher number %d took left fork\n", args->n);
 //		sleep(rand()%2);
@@ -67,8 +72,10 @@ void* glutton_eat(void* arg) {
 
 		sem_wait(args->glutton_sem);
 
-		pthread_mutex_unlock(args->fork_r);
 		pthread_mutex_unlock(args->fork_l);
+//		printf("\nGlutton number %d put left fork\n", args->n);
+		pthread_mutex_unlock(args->fork_r);
+//		printf("\nGlutton number %d put right fork\n", args->n);
 	}
 }
 
@@ -120,7 +127,7 @@ int main(int argc, char* argv[]) {
 	NumberGluttons = NumberPhilosophers/2;
     // Создание потоков
 	for (i = 0; i < NumberPhilosophers; i++) {
-        if (pthread_create(threads+i, NULL, (i % 2 == 0 && i/2 <= NumberGluttons) ? glutton_eat : eat, args+i) != 0) {
+        if (pthread_create(threads+i, NULL, (i % 2 == 0 && i/2 < NumberGluttons) ? glutton_eat : eat, args+i) != 0) {
             fprintf(stderr, "Failed to create \"Philosopher\".\n");
             return 1;
         }
@@ -129,9 +136,9 @@ int main(int argc, char* argv[]) {
 
 	while(1) {
 		sleep(5);
-		printf("\nHunger  Number\n");
+		printf("\nHunger\n");
 		for (i = 0; i < NumberPhilosophers; ++i) {
-			printf("%d       %d\n", hunger[i], i);
+			printf(" %d ", hunger[i]);
 		}
 	}
 
