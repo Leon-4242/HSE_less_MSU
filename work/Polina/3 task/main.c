@@ -5,26 +5,29 @@
 #include "jordan_linear_parallel.h"
 
 int main(int argc, char* argv[]) {
-	int n = 0, r = 0, s = 0, task = 0, flag = 0, res = 0, i = 0, k = 0;
+	int n = 0, r = 0, s = 0, task = 0, flag = 0, res = 0, i = 0, k = 0, p = 0;
 	char* filename = NULL; double* array = NULL, *result = NULL, *b = NULL; int *indi = NULL;
 	double r1 = 0, r2 = 0, t1 = 0, t2 = 0, sum = 0;
+	ThreadArgs* args; 
+	pthread_t* threads;
 	
 	task = 15;
 	//Initialization
-	if (argc < 4 || argc > 5) {
+	if (argc < 5 || argc > 6) {
 		printf("Invalid number of arguments.\n");
 		return -1;
 	}
 	n = strtol(argv[1], NULL, 10);
-	r = strtol(argv[2], NULL, 10);
-	s = strtol(argv[3], NULL, 10);
+	p = strtol(argv[2], NULL, 10);
+	r = strtol(argv[3], NULL, 10);
+	s = strtol(argv[4], NULL, 10);
 
-	if (s == 0 && argc == 4) {
+	if (s == 0 && argc == 5) {
 		printf("Invalid number of arguments.\n");
 		return -1;
 	}
 
-	if (s == 0) {filename  = argv[4];}
+	if (s == 0) {filename  = argv[5];}
 	
 	array = (double*)malloc(n*n*sizeof(double));
 
@@ -60,8 +63,10 @@ int main(int argc, char* argv[]) {
 	printf("\n\n");
 
 	result = (double*)malloc(n*sizeof(double));
+    args = (ThreadArgs *)malloc(p*sizeof(ThreadArgs));
+    threads = (pthread_t *)malloc(p*sizeof(pthread_t));
 	
-	flag = jordan_linear(n, array, result, b, &t1, indi);
+	flag = jordan_linear(n, array, result, b, &t1, indi, args, threads, p);
 	/*
 	...
 	...
