@@ -59,8 +59,6 @@ int solve(int n, double *a, double *b, int *m, int* tmp) {
 		}
 	} //norm calculated
 
-	printf("norm = %e\n", norm);
-	
 	for (k = 0;  k < n; ++k) {
 		n_max = k; max = fabs(a[k*n+m[k]]);
 		for (j = k+1; j < n; ++j) {
