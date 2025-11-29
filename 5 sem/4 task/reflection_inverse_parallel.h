@@ -5,9 +5,22 @@
 #include <sys/time.h>
 #include <math.h>
 #include <pthread.h>
-#include <semaphore.h>
+#include <mutex.h>
 
-int reflection_inverse(int, double*, double*, double*, double*);
+typedef struct {
+	double* a;
+	double* b;
+	double* d;
+	int n;
+	double* s;
+
+	int numThreads;
+	int thread_id;
+	pthread_barier_t* barier;
+	pthread_mutex_t* mutex;
+} ThreadArgs;
+
+void* reflection_inverse_parallel(void*);
 
 void r1_r2(int, double*, double*, double*, double*, double*);
 

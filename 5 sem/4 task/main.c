@@ -5,26 +5,33 @@
 #include "reflection_inverse_parallel.h"
 
 int main(int argc, char* argv[]) {
-	int n = 0, r = 0, s = 0, task = 0, flag = 0, res = 0;
+	int n = 0, p = 0, r = 0, s = 0, task = 0, flag = 0, res = 0;
 	char* filename = NULL; double* array = NULL, *result = NULL, *d = NULL;
-	double r1 = 0, r2 = 0, t1 = 0, t2 = 0;
+	double r1 = 0, r2 = 0, t1 = 0, t2 = 0, tmp = 0;
+	ThreadArgs* args; pthread_t* threads; pthread_barier_t barier;
+	pthread_mutex_t mutex;
+
+	struct timeval start, end;
+    long long start_us, end_us;
+
 	
 	task = 24;
 	//Initialization
-	if (argc < 4 || argc > 5) {
+	if (argc < 5 || argc > 6) {
 		printf("Invalid number of arguments.\n");
 		return -1;
 	}
 	n = strtol(argv[1], NULL, 10);
-	r = strtol(argv[2], NULL, 10);
-	s = strtol(argv[3], NULL, 10);
+	p = strtol(argv[2], NULL, 10);
+	r = strtol(argv[3], NULL, 10);
+	s = strtol(argv[4], NULL, 10);
 
-	if (s == 0 && argc == 4) {
+	if (s == 0 && argc == 5) {
 		printf("Invalid number of arguments.\n");
 		return -1;
 	}
 
-	if (s == 0) {filename  = argv[4];}
+	if (s == 0) {filename  = argv[5];}
 	
 	array = (double*)malloc(n*n*sizeof(double));
 
@@ -46,8 +53,36 @@ int main(int argc, char* argv[]) {
 
 	result = (double*)malloc(n*n*sizeof(double));
 	d = (double*)malloc(n*sizeof(double));
-	flag = reflection_inverse(n, array, result, &t1, d);
-	
+	threads = (pthread_t*)malloc(p*sizeof(pthread_t));
+	args = (ThreadArgs*)malloc(p*sizeof(ThreadArgs));
+
+	pthread_mutex_init(&mutex, NULL);
+	pthread_barrier_init(&barrier, NULL, p);
+	gettimeofday(&start, NULL);
+
+	for (i = 0; i < p; ++i) {
+		(args+i)->a = array;
+		(args+i)->b = result; 
+		(args+i)->d = d;
+		(args+i)->n = n;
+
+		(args+i)->numThreads = p;
+		(args+i)->thread_id = i;
+		(args+i)->barier = &barier;
+		(args+i)->s = &tmp;
+		(args+i)->mutex = mutex;
+		if (pthread_create(threads + i, NULL, reflection_inverse_parallel, args+i) != 0)
+			return 1;
+	}
+
+    gettimeofday(&end, NULL);
+ 
+    start_us = start.tv_sec * 1000000 + start.tv_usec;
+    end_us = end.tv_sec * 1000000 + end.tv_usec;
+ 
+    t1 = (double)(end_us - start_us)/1000000.;
+
+
 	output(r, n, n, array);
 	printf("\n");
 	output(r, 1, n, d);

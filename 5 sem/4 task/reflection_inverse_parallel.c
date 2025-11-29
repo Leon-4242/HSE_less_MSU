@@ -1,21 +1,57 @@
 #include <stdio.h>
 #include "reflection_inverse_parallel.h"
 
-int reflection_inverse(int n, double* a, double* res, double* time, double* d) {
+void* reflection_inverse_parallel(void* arg) {
+	ThreadArgs* args; int i = 0, j = 0, k = 0;
+	double norm_a1 = 0;
+
+	args = (ThreadArgs*)arg;
+
+	for (i = args->thread_id; i < args->n; i += args->numThreads) {
+		args->d[i] = 0.;
+	}
+
+	for (i = args->thread_id; i < args->n; i += args->numThreads) {
+		for (j = 0; j < args->n; ++j) {
+			args->b[i*args->n+j] = (i == j ? 1 : 0);
+		}
+	}
+
+	pthread_barier(args->barier);
+
+	for (k = 0; k < n; ++k) {
+		if (args->thread_id == 0) {
+			pthread_mutex_lock(args->mutex);
+			*args->s = 0;
+			pthread_mutex_unlock(args->mutex);
+		}
+		if (args->thread_id > k) {
+			pthread_mutex_lock(args->mutex);
+			*args->s += args->a[args->thread_id * args->n + k] * args->a[args->thread_id * args->n + k];
+			pthread_mutex_unlock(args->mutex);
+		}
+		pthread_barier(args->barier);
+
+		if (args->thread_id == 0) {
+			norm_a1 = sqrt(args->a[k*args->n + k] * args->a[k* args->n + k] + s);
+			args->a[k*args->n + k] -= norm_a1;
+			d[k] = norm_a1;
+		}
+		pthread_barier(args->barier);
+
+		if (fabs(d[k]) < 1e-15)
+			return (void*)a;
+		
+
+		pthread_barrier_wait(&barrier);
+	}
+}
+
+int reflection_inverse(int n, double* a, double* res, double* time, double* d, ThreadArgs* args, pthread_t* threads, pthread_barier_t barier) {
 	struct timeval start, end;
     long long start_us, end_us;
 	int i = 0, j = 0, k = 0, t = 0;
 	double s = 0, norm_a1 = 0, norm_x = 0, prod = 0;
-
-	for (i = 0; i < n; ++i) {
-		d[i] = 0.;
-	}
-
-	for (i = 0; i < n; ++i) {
-		for (j = 0; j < n; ++j) {
-			res[i*n+j] = (i == j ? 1 : 0);
-		}
-	}
 
 	gettimeofday(&start, NULL);
 
