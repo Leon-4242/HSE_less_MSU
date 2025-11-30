@@ -7,9 +7,8 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 	struct timeval start, end;
     long long start_us, end_us;
 	int i = 0, j = 0, k = 0, iter = 0, m = 0, t = 0;
-	double tmp = 0, norm_A = 0, sum = 0, s = 0, cos = 0, sin = 0,
-		   s_k = 0, norm_a1 = 0, prod = 0, norm_x = 0;
-	double sin_old = 0, cos_old = 0;
+	double tmp = 0, norm_A = 0, sum = 0, c = 0, s = 0,
+		   s_k = 0, norm_a1 = 0, prod = 0, norm_x = 0, xk = 0, zk = 0, d_new_k = 0, d_new_k1 = 0, e_new_k  = 0;
 
 	m = n;
 	gettimeofday(&start, NULL);
@@ -96,27 +95,45 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 //			output(n, n, n, a);
 //			printf("\n");
 
-			for (k = 0; k < m; ++k) {
-				s = 0;
-				for (i = k+1; i < min(k+2, m); ++i) {s += a[i*n+k]*a[i*n+k];}
-
-				norm_a1 = sqrt(a[k*n+k]*a[k*n+k] + s);
+			xk = a[0*n + 0];
+			zk = a[1*n + 0];   
+			for (k = 0; k < m-1; ++k) {
+				norm_a1 = sqrt(xk*xk+zk*zk);
 		
-				if (norm_a1 < eps) {cos = 1; sin = 0;}
+				if (norm_a1 < eps) {c = 1; s = 0;}
 				else {	
-					cos = a[k*n+k]/norm_a1;
-					if (k != m-1) sin = -a[(k+1)*n+k]/norm_a1;
-					else sin = 0;
+					c = xk/norm_a1;
+					s = -zk/norm_a1;
 				}
 
-				if (fabs(sin) < eps) sin = 0;
-				if (fabs(cos) < eps) cos = 0;
+				if (fabs(s) < eps) s = 0;
+				if (fabs(c) < eps) c = 0;
 
 //				if (iter == 20)
 //				printf("\nnorm_a1 = %e, cos = %e, sin = %e\n", norm_a1, cos, sin);	
 
+
+			    /* новые диагонали */
+			    d_new_k   =  c*c*a[k*n+k]- c*s*a[(k+1)*n + k] - c*s*a[(k+1)*n + k] + s*s*a[(k+1)*n + (k+1)];
+			    d_new_k1  =  s*s*a[k*n + k] + 2*c*s*a[(k+1)*n + k] + c*c*a[(k+1)*n + (k+1)];
+			    e_new_k = c*s*(a[k*n + k] - a[(k+1)*n+(k+1)]) + (c*c-s*s)*a[(k+1)*n + k];
+				
+			    a[k*n + k] = d_new_k;
+			    a[(k+1)*n + k] = e_new_k;
+			    a[k*n + (k+1)] = a[(k+1)*n+k];
+			    a[(k+1)*n + (k+1)] = d_new_k1;
+
+				if (k < m-2) {
+			        xk = e_new_k;
+			        zk = s * a[(k+2)*n + (k+1)];
+			        a[(k+2)*n + (k+1)] = c* a[(k+2)*n + (k+1)];
+			        a[(k+1)*n + (k+2)] = a[(k+2)*n + (k+1)];
+			    }
+
+
+/*
 				a[k*n+k] = norm_a1;
-				if (k != m-1) a[(k+1)*n+k] = 0;		
+				a[(k+1)*n+k] = 0;		
 					
 				for (j = k+1; j < min(k+3, m); ++j) {
 					if (j == k+2) {
@@ -129,16 +146,12 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 				}
 			
 
-				if (k != 0) {
-					for (i = k-1; i < min(k+1, m); ++i) {
-						tmp = cos_old*a[i*n+(k-1)] - sin_old*a[i*n+k];
-						a[i*n+k] = sin_old*a[i*n+(k-1)] + cos_old*a[i*n+k];
-						a[i*n+(k-1)] = tmp;
-					}
-					a[(k-1)*n+k] = a[k*n+(k-1)];
+				for (i = k; i < min(k+2, m); ++i) {
+					tmp = cos*a[i*n+k] - sin*a[i*n+(k+1)];
+					a[i*n+(k+1)] = sin*a[i*n+k] + cos*a[i*n+(k+1)];
+					a[i*n+k] = tmp;
 				}
-
-				cos_old = cos; sin_old = sin;
+				a[k*n+(k+1)] = a[(k+1)*n+k];
 
 				if (k == m-1) {
 					a[(m-1)*n+(m-1)] = cos*a[(m-1)*n+(m-1)];
@@ -148,6 +161,7 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 //				output(n, n, n, a);
 //				printf("\n");
 //				}
+//		*/
 			}
 	
 			for (i = 0; i < m; ++i) {a[i*n+i] += s_k;}

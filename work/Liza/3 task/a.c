@@ -1,18 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <sys/time.h>
 #include "matrix_io.h"
 #include "solve1.h"
 
 int main(int argc, char* argv[]) {
-    int n, r, s, p;
-    int ret, res;
-    double *a, *b;
+    int n, r, s, p, i = 0, l = 0;
+    int ret, res = 0;
+    double *a, *b, bb = 0, *buff;
 	int *m, *tmp;
     double t1, t2 = 0, r1, r2;
     char *name = 0;
+	pthread_mutex_t mutex;
+	pthread_barrier_t barrier;
 	ThreadArgs* args; 
 	pthread_t* threads;
+	struct timeval start, end;
+    long long start_us, end_us;
 
     if (!((argc == 6 || argc == 5) && sscanf(argv[1], "%d", &n) == 1 &&
     sscanf(argv[2], "%d", &p) == 1 && sscanf(argv[3], "%d", &r) == 1 && sscanf(argv[4], "%d", &s) && ((argc == 5 && s > 0) || (argc == 6 && s == 0)))) {
@@ -80,17 +84,54 @@ int main(int argc, char* argv[]) {
         free(a);
         free(b);
 		free(m);
+		free(tmp);
 		free(args);
         return 2;
     }
 
 	
-
     printf("Initial matrix:\n");
     print_matrix(a, n, n, r);
-    t1 = clock();
-    res = solve(n, a, b, m, tmp, args, threads, p);
-    t1 = (clock() - t1) / CLOCKS_PER_SEC;
+    
+	pthread_mutex_init(&mutex, NULL);
+	pthread_barrier_init(&barrier, NULL, p);
+	gettimeofday(&start, NULL);
+
+    for (i = 0; i < p; ++i) {
+		(args+i)->a = a;
+		(args+i)->b = b; 
+		(args+i)->n = n;
+		(args+i)->ind = m;
+		(args+i)->buff = tmp;
+
+		(args+i)->numThreads = p;
+		(args+i)->thread_id = i;
+		(args+i)->barrier = &barrier;
+
+		(args+i)->s = &bb;
+		(args+i)->k = &l;
+		(args+i)->mutex = &mutex;
+		if (pthread_create(threads + i, NULL, solve, args+i) != 0)
+			return 1;
+	}
+	
+    for (i = 0; i < p; ++i) {
+        if (pthread_join(threads[i], (void**)&buff) != 0) {
+            fprintf(stderr, "Failed to join thread");
+            return 1;
+        }
+
+		if (buff != NULL) 
+			res = 1;
+	}
+	
+	gettimeofday(&end, NULL);
+ 
+    start_us = start.tv_sec * 1000000 + start.tv_usec;
+    end_us = end.tv_sec * 1000000 + end.tv_usec;
+ 
+    t1 = (double)(end_us - start_us)/1000000.;
+	
     if (name) {
         ret = read_matrix(a, name, n, n);
     }

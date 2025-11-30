@@ -8,12 +8,17 @@ typedef struct {
 	double* b;
 	int n;
 	int* ind;
+	int* buff;
 
-	int start;
-	int end;
-	int k;
+	double* s;
+	int* k;
+
+	int numThreads;
+	int thread_id;
+	pthread_barrier_t* barrier;
+	pthread_mutex_t* mutex;
 } ThreadArgs;
 
-void* parallel_conversion(void*);
-int solve(int n, double *a, double *b, int* m, int* tmp, ThreadArgs* args, pthread_t* threads, int p);
+void* solve(void*);
+//int solve(int n, double *a, double *b, int* m, int* tmp, ThreadArgs* args, pthread_t* threads, int p);
 double norm_calc(double *a, int n);
