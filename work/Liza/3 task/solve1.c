@@ -47,18 +47,8 @@ void* solve(void* arg) {
 				args->ind[*args->k] = buff;
 			}
 		}
-/*		pthread_barrier_wait(args->barrier);
+		pthread_barrier_wait(args->barrier);
 	
-		if (args->thread_id == 0) {
-			for (i = 0; i < args->n; ++i) {
-				for (j = 0; j < args->n; ++j) {
-					printf("%e ", args->a[i*args->n + args->ind[j]]);
-				}
-				printf("\n");
-			}
-		}
-*/		pthread_barrier_wait(args->barrier);
-
 		if (*args->s < 1e-15) return (void*)args->a;
 		
 		start = args->thread_id;
@@ -73,7 +63,7 @@ void* solve(void* arg) {
 
 		pthread_barrier_wait(args->barrier);
 		if (args->thread_id == 0) {
-			args->a[args->ind[k]*args->n + k] = 1.;
+			args->a[k*args->n + args->ind[k]] = 1.;
 		}
 
 		pthread_barrier_wait(args->barrier);
