@@ -5,12 +5,14 @@
 #include "jordan_linear_parallel.h"
 
 int main(int argc, char* argv[]) {
-	int n = 0, r = 0, s = 0, task = 0, flag = 0, res = 0, i = 0, k = 0, p = 0;
-	char* filename = NULL; double* array = NULL, *result = NULL, *b = NULL; int *indi = NULL;
-	double r1 = 0, r2 = 0, t1 = 0, t2 = 0, sum = 0;
-	ThreadArgs* args; 
-	pthread_t* threads;
-	
+	int i = 0, n = 0, p = 0, r = 0, s = 0, task = 0, flag = 0, res = 0, k = 0, l = 0;
+	char* filename = NULL; double* array = NULL, *result = NULL, *b = NULL, *buff = NULL; int *indi = NULL;
+	double r1 = 0, r2 = 0, t1 = 0, t2 = 0, sum = 0, tmp = 0;
+	ThreadArgs* args; pthread_t* threads; pthread_barrier_t barrier;
+	pthread_mutex_t mutex;
+	struct timeval start, end;
+    long long start_us, end_us;
+
 	task = 15;
 	//Initialization
 	if (argc < 5 || argc > 6) {
@@ -66,12 +68,44 @@ int main(int argc, char* argv[]) {
     args = (ThreadArgs *)malloc(p*sizeof(ThreadArgs));
     threads = (pthread_t *)malloc(p*sizeof(pthread_t));
 	
-	flag = jordan_linear(n, array, result, b, &t1, indi, args, threads, p);
-	/*
-	...
-	...
-	...
-	*/
+	pthread_mutex_init(&mutex, NULL);
+	pthread_barrier_init(&barrier, NULL, p);
+	gettimeofday(&start, NULL);
+	
+	for (i = 0; i < p; ++i) {
+		(args+i)->a = array;
+		(args+i)->b = b; 
+		(args+i)->res = result;
+		(args+i)->n = n;
+		(args+i)->ind = indi;
+
+		(args+i)->numThreads = p;
+		(args+i)->thread_id = i;
+		(args+i)->barrier = &barrier;
+		(args+i)->s = &tmp;
+		(args+i)->k = &l;
+		(args+i)->mutex = &mutex;
+		if (pthread_create(threads + i, NULL, jordan_linear_parallel, args+i) != 0)
+			return 1;
+	}
+	
+    for (i = 0; i < p; ++i) {
+        if (pthread_join(threads[i], (void**)&buff) != 0) {
+            fprintf(stderr, "Failed to join thread");
+            return 1;
+        }
+
+		if (buff != NULL) 
+			flag = 1;
+    }
+
+    gettimeofday(&end, NULL);
+ 
+    start_us = start.tv_sec * 1000000 + start.tv_usec;
+    end_us = end.tv_sec * 1000000 + end.tv_usec;
+ 
+    t1 = (double)(end_us - start_us)/1000000.;
+
 	res = input(s, filename, n, array);	
 	
 	for (i = 0; i < n; ++i) {
@@ -92,9 +126,15 @@ int main(int argc, char* argv[]) {
 	}
 	printf ("%s : Task = %d Res1 = %e Res2 = %e T1 = %.2f T2 = %.2f S = %d N = %d\n", argv[0], task, r1, r2, t1, t2, s, n);
 	
+	pthread_mutex_destroy(&mutex);
+	pthread_barrier_destroy(&barrier);
+	
 	free(array);
 	free(result);
 	free(b);
 	free(indi);
+	free(args);
+	free(threads);
+
 	return 0;
 }
