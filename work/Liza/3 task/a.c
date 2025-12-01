@@ -165,11 +165,16 @@ int main(int argc, char* argv[]) {
     	r1 = (r2 = 0);
     }
     else {
-        t2 = clock();
-    	calc_r1_r2(a, b, n, &r1);
+    	gettimeofday(&start, NULL);
+		calc_r1_r2(a, b, n, &r1);
     	calc_r1_r2(b, a, n, &r2);
-        t2 = (clock() - t2) / CLOCKS_PER_SEC;
-    }
+		gettimeofday(&end, NULL);
+ 
+	    start_us = start.tv_sec * 1000000 + start.tv_usec;
+	    end_us = end.tv_sec * 1000000 + end.tv_usec;
+ 
+	    t2 = (double)(end_us - start_us)/1000000.;
+	}
     if (res == 0) {
     	printf("Result matrix:\n");
     	print_matrix(b, n, n, r);
