@@ -2,7 +2,9 @@
 
 void CString::SetZero()
 {
-	str.reset();
+	//str.release(); //как я понял так происходит именно 
+  //открепление, а не очистка
+  str.reset(); 
 	n = 0;
 }
 //-=-
@@ -12,6 +14,7 @@ void CString::MoveOnly(CString& b)
 {
   n=b.n;
   //str.reset(b.str.get());
+  //может использовать str.swap(b.str);
   str = std::move(b.str);
   b.SetZero();
 }
@@ -110,12 +113,7 @@ const char& CString::operator[](size_t i)const
 CString CString::operator+(const CString& b)
 {
   CString tmp((this->n + b.n));
-	size_t i = 0;
-	while(this->str.get()[i]!='\0')
-  {
-    std::cout<<str.get()[i]<<std::endl;
-    i++;
-  }
+//	size_t i = 0;
 	for (size_t i = 0; i <(this->n); i++)
 		tmp[i] = this->str.get()[i];
 	for (size_t i = this->n; i < (this->n + b.n); i++)
@@ -130,6 +128,6 @@ std::ostream& operator<<(std::ostream& out, const CString& b)
 		word[i] = b[i];    
 	word[b.n] = '\0';
 	out << "Word is | " << word << " |";
-	return out;
   delete[] word;
+	return out; 
 }
