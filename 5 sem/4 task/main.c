@@ -5,16 +5,23 @@
 #include "reflection_inverse_parallel.h"
 
 int main(int argc, char* argv[]) {
-	int n = 0, p = 0, r = 0, s = 0, task = 0, flag = 0, res = 0;
-	char* filename = NULL; double* array = NULL, *result = NULL, *d = NULL;
+	int i = 0, n = 0, p = 0, r = 0, s = 0, task = 0, flag = 0, res = 0;
+	char* filename = NULL; double* array = NULL, *result = NULL, *d = NULL, *buff = NULL;
 	double r1 = 0, r2 = 0, t1 = 0, t2 = 0, tmp = 0;
-	ThreadArgs* args; pthread_t* threads; pthread_barier_t barier;
+	ThreadArgs* args; pthread_t* threads; 
+	//pthread_barrier_t barrier;
+	barrier_t barrier; pthread_mutex_t sup; sem_t sup1, sup2;
 	pthread_mutex_t mutex;
 
 	struct timeval start, end;
     long long start_us, end_us;
 
-	
+	barrier.sem = sup;
+	barrier.sem_f = sup1;
+	barrier.sem_l = sup2;
+	barrier.k = 0;
+	barrier.curr = 0;
+
 	task = 24;
 	//Initialization
 	if (argc < 5 || argc > 6) {
@@ -57,7 +64,8 @@ int main(int argc, char* argv[]) {
 	args = (ThreadArgs*)malloc(p*sizeof(ThreadArgs));
 
 	pthread_mutex_init(&mutex, NULL);
-	pthread_barrier_init(&barrier, NULL, p);
+//	pthread_barrier_init(&barrier, NULL, p);
+	barrier_init(&barrier, p);
 	gettimeofday(&start, NULL);
 
 	for (i = 0; i < p; ++i) {
@@ -68,12 +76,22 @@ int main(int argc, char* argv[]) {
 
 		(args+i)->numThreads = p;
 		(args+i)->thread_id = i;
-		(args+i)->barier = &barier;
+		(args+i)->barrier = &barrier;
 		(args+i)->s = &tmp;
-		(args+i)->mutex = mutex;
+		(args+i)->mutex = &mutex;
 		if (pthread_create(threads + i, NULL, reflection_inverse_parallel, args+i) != 0)
 			return 1;
 	}
+
+    for (i = 0; i < p; ++i) {
+        if (pthread_join(threads[i], (void**)&buff) != 0) {
+            fprintf(stderr, "Failed to join thread");
+            return 1;
+        }
+
+		if (buff != NULL) 
+			flag = 1;
+    }
 
     gettimeofday(&end, NULL);
  
@@ -96,8 +114,14 @@ int main(int argc, char* argv[]) {
 	}
 	printf ("%s : Task = %d Res1 = %e Res2 = %e T1 = %.2f T2 = %.2f S = %d N = %d\n", argv[0], task, r1, r2, t1, t2, s, n);
 	
+	pthread_mutex_destroy(&mutex);
+//	pthread_barrier_destroy(&barrier);
+	barrier_destroy(&barrier);
+
 	free(array);
 	free(result);
 	free(d);
+	free(threads);
+	free(args);
 	return 0;
 }

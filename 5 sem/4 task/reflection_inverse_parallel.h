@@ -5,7 +5,8 @@
 #include <sys/time.h>
 #include <math.h>
 #include <pthread.h>
-#include <mutex.h>
+#include <semaphore.h>
+#include "barrier.h"
 
 typedef struct {
 	double* a;
@@ -16,7 +17,8 @@ typedef struct {
 
 	int numThreads;
 	int thread_id;
-	pthread_barier_t* barier;
+//	pthread_barrier_t* barrier;
+	barrier_t* barrier;
 	pthread_mutex_t* mutex;
 } ThreadArgs;
 

@@ -2,51 +2,101 @@
 #include "reflection_inverse_parallel.h"
 
 void* reflection_inverse_parallel(void* arg) {
-	ThreadArgs* args; int i = 0, j = 0, k = 0;
-	double norm_a1 = 0;
+	ThreadArgs* args; int i = 0, j = 0, k = 0, t = 0, start = 0;
+	double norm_a1 = 0, prod = 0, s = 0;
 
 	args = (ThreadArgs*)arg;
 
 	for (i = args->thread_id; i < args->n; i += args->numThreads) {
 		args->d[i] = 0.;
 	}
-
+	
 	for (i = args->thread_id; i < args->n; i += args->numThreads) {
 		for (j = 0; j < args->n; ++j) {
 			args->b[i*args->n+j] = (i == j ? 1 : 0);
 		}
 	}
 
-	pthread_barier(args->barier);
-
-	for (k = 0; k < n; ++k) {
+//	pthread_barrier_wait(args->barrier);
+	barrier_wait(args->barrier);	
+	for (k = 0; k < args->n; ++k) {
 		if (args->thread_id == 0) {
 			pthread_mutex_lock(args->mutex);
 			*args->s = 0;
 			pthread_mutex_unlock(args->mutex);
 		}
-		if (args->thread_id > k) {
+		barrier_wait(args->barrier);	
+//		pthread_barrier_wait(args->barrier);
+
+		start = args->thread_id;
+		while (start < k+1) {start += args->numThreads;}
+		for(i = start; i < args->n; i += args->numThreads) {
 			pthread_mutex_lock(args->mutex);
-			*args->s += args->a[args->thread_id * args->n + k] * args->a[args->thread_id * args->n + k];
+			*args->s += args->a[i * args->n + k] * args->a[i * args->n + k];
 			pthread_mutex_unlock(args->mutex);
 		}
-		pthread_barier(args->barier);
+
+		barrier_wait(args->barrier);	
+//		pthread_barrier_wait(args->barrier);
 
 		if (args->thread_id == 0) {
-			norm_a1 = sqrt(args->a[k*args->n + k] * args->a[k* args->n + k] + s);
+			norm_a1 = sqrt(args->a[k*args->n + k] * args->a[k* args->n + k] + *args->s);
 			args->a[k*args->n + k] -= norm_a1;
-			d[k] = norm_a1;
+			args->d[k] = norm_a1;
+			*args->s = sqrt(args->a[k*args->n+k]*args->a[k*args->n+k] + *args->s);
 		}
-		pthread_barier(args->barier);
 
-		if (fabs(d[k]) < 1e-15)
-			return (void*)a;
+		barrier_wait(args->barrier);	
+//		pthread_barrier_wait(args->barrier);
+
+		if (fabs(args->d[k]) < 1e-15)
+			return (void*)args->a;
+				
+		if (fabs(*args->s) < 1e-15) continue;
+
+		start = args->thread_id;
+		while (start < k) {start += args->numThreads;}
+		for (i = start; i < args->n; i += args->numThreads) {
+			args->a[i * args->n + k] /= *args->s;
+		}
+
+		barrier_wait(args->barrier);	
+//		pthread_barrier_wait(args->barrier);
+
+		start = args->thread_id;
+		while (start < k+1) {start += args->numThreads;}
+		for (i = start; i < args->n; i += args->numThreads) {
+			prod = args->a[k*args->n+k]*args->a[k*args->n+i];
+			for (t = k+1; t < args->n; ++t) {prod += args->a[t*args->n+k]*args->a[t*args->n+i];}
+			prod *= 2;
+			for (t = k; t < args->n; ++t) {args->a[t*args->n+i] -= prod* args->a[t*args->n+k];}
+		}
 		
+		for (i = args->thread_id; i < args->n; i += args->numThreads) {
+			prod = args->a[k*args->n+k]*args->b[k*args->n+i];
+			for (t = k+1; t < args->n; ++t) {prod += args->a[t*args->n+k]*args->b[t*args->n+i];}
+			prod *= 2; 
+			for (t = k; t < args->n; ++t) {args->b[t*args->n+i] -= prod*args->a[t*args->n+k];}
+		}
 
-		pthread_barrier_wait(&barrier);
+		barrier_wait(args->barrier);	
+//		pthread_barrier_wait(args->barrier);
 	}
+
+	for (i = args->thread_id; i < args->n; i += args->numThreads) {
+		for (k = args->n-1; k >= 0; --k) {
+			s = 0;
+			for (j = k+1; j < args->n; ++j) {
+				s += args->a[k*args->n+j]*args->b[j*args->n+i];
+			}
+			args->b[k*args->n+i] = (args->b[k*args->n+i] - s)/(args->d[k]);
+		}
+	}
+
+	return NULL;
 }
 
+/*
 int reflection_inverse(int n, double* a, double* res, double* time, double* d, ThreadArgs* args, pthread_t* threads, pthread_barier_t barier) {
 	struct timeval start, end;
     long long start_us, end_us;
@@ -114,7 +164,7 @@ int reflection_inverse(int n, double* a, double* res, double* time, double* d, T
 
 	return 0;
 }
-
+*/
 void r1_r2(int n, double* a, double* inv_a, double* r1, double* r2, double* time) {
 	struct timeval start, end;
     long long start_us, end_us;

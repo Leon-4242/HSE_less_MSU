@@ -1,9 +1,9 @@
 all: main lib
-	gcc main.o input.o output.o reflection_inverse_parallel.o -o app -lm -lpthread
+	gcc main.o input.o output.o reflection_inverse_parallel.o barrier.o -o app -lm -lpthread
 main:
 	gcc main.c -c
 
-lib: input output reflection_inverse_parallel
+lib: input output reflection_inverse_parallel barrier
 
 input:
 	gcc input.c -c
@@ -13,6 +13,9 @@ output:
 
 reflection_inverse_parallel:
 	gcc reflection_inverse_parallel.c -c -lpthread
+
+barrier:
+	gcc barrier.c -c -lpthread
 
 clear:
 	rm *.o
