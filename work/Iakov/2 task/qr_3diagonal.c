@@ -8,7 +8,7 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
     long long start_us, end_us;
 	int i = 0, j = 0, k = 0, iter = 0, m = 0, t = 0;
 	double tmp = 0, norm_A = 0, sum = 0, c = 0, s = 0,
-		   s_k = 0, norm_a1 = 0, prod = 0, norm_x = 0, xk = 0, zk = 0, d_new_k = 0, d_new_k1 = 0, e_new_k  = 0;
+		   s_k = 0, norm_a1 = 0, prod = 0, norm_x = 0, c_old = 0, s_old = 0;
 
 	m = n;
 	gettimeofday(&start, NULL);
@@ -86,7 +86,6 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 
 	while (m > 2) {
 		while (fabs(a[(m-1)*n+m-2]) > eps*norm_A && fabs(a[(m-2)*n+(m-3)]) > eps*norm_A) {
-//			if (iter > 50) break;
 			s_k = a[(m-1)*n+(m-1)];
 			for (i = 0; i < m; ++i) {a[i*n+i] -= s_k;}
 	
@@ -95,66 +94,57 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 //			output(n, n, n, a);
 //			printf("\n");
 
-			xk = a[0*n + 0];
-			zk = a[1*n + 0];   
-			for (k = 0; k < m-1; ++k) {
-				norm_a1 = sqrt(xk*xk+zk*zk);
-		
-				if (norm_a1 < eps) {c = 1; s = 0;}
-				else {	
-					c = xk/norm_a1;
-					s = -zk/norm_a1;
-				}
-
-				if (fabs(s) < eps) s = 0;
-				if (fabs(c) < eps) c = 0;
-
-//				if (iter == 20)
-//				printf("\nnorm_a1 = %e, cos = %e, sin = %e\n", norm_a1, cos, sin);	
-
-
-			    /* новые диагонали */
-			    d_new_k   =  c*c*a[k*n+k]- c*s*a[(k+1)*n + k] - c*s*a[(k+1)*n + k] + s*s*a[(k+1)*n + (k+1)];
-			    d_new_k1  =  s*s*a[k*n + k] + 2*c*s*a[(k+1)*n + k] + c*c*a[(k+1)*n + (k+1)];
-			    e_new_k = c*s*(a[k*n + k] - a[(k+1)*n+(k+1)]) + (c*c-s*s)*a[(k+1)*n + k];
+            for (k = 0; k < m - 1; ++k) {
 				
-			    a[k*n + k] = d_new_k;
-			    a[(k+1)*n + k] = e_new_k;
-			    a[k*n + (k+1)] = a[(k+1)*n+k];
-			    a[(k+1)*n + (k+1)] = d_new_k1;
+                /* если z=0, то вращение не нужно */
+                norm_a1 = sqrt(a[k*n+k]*a[k*n+k] + a[(k+1)*n+k]*a[(k+1)*n+k]);
+                c = a[k*n+k] / norm_a1;
+                s = -a[(k+1)*n+k] / norm_a1;
 
-				if (k < m-2) {
-			        xk = e_new_k;
-			        zk = s * a[(k+2)*n + (k+1)];
-			        a[(k+2)*n + (k+1)] = c* a[(k+2)*n + (k+1)];
-			        a[(k+1)*n + (k+2)] = a[(k+2)*n + (k+1)];
-			    }
+                /* ---------- Левое умножение G_k * A ---------- */
+                a[(k+1)*n + k] = 0;
+                a[k*n + k] = norm_a1;
 
-
-/*
-				a[k*n+k] = norm_a1;
-				a[(k+1)*n+k] = 0;		
-					
-				for (j = k+1; j < min(k+3, m); ++j) {
-					if (j == k+2) {
-						a[(k+1)*n+j] = cos*a[(k+1)*n+j];
-					} else { 
-						tmp = cos*a[k*n+j] - sin*a[(k+1)*n+j];
-						a[(k+1)*n+j] = sin*a[k*n+j] + cos*a[(k+1)*n+j];
-						a[k*n+j] = tmp;	
-					}
+                tmp = c * a[k*n + (k+1)] - s * a[(k+1)*n + (k+1)];
+                a[(k+1)*n + (k+1)] = s * a[k*n + (k+1)] + c * a[(k+1)*n + (k+1)];
+                a[k*n + (k+1)] = tmp;
+		
+				if (k+2 < m) {
+					a[(k+1)*n+(k+2)] *= c;
 				}
-			
+//				printf("\nk = %d,  after T(k)*A:\n", k);
+//				output(n, n, n, a);
+//				printf("\n");
 
-				for (i = k; i < min(k+2, m); ++i) {
-					tmp = cos*a[i*n+k] - sin*a[i*n+(k+1)];
-					a[i*n+(k+1)] = sin*a[i*n+k] + cos*a[i*n+(k+1)];
-					a[i*n+k] = tmp;
+				if (k > 0) {
+					a[(k-1)*n+(k-1)]=  c_old * a[(k-1)*n + (k-1)] - s_old * a[(k-1)*n + k];
+
+				    tmp =  c_old * a[k*n + (k-1)] - s_old * a[k*n + k];
+					a[k*n + k] = s_old * a[k*n + (k-1)] + c_old * a[k*n + k];
+				    a[k*n + (k-1)] = tmp;
+
+					a[(k-1)*n+k] = a[k*n+(k-1)];
 				}
-				a[k*n+(k+1)] = a[(k+1)*n+k];
 
-				if (k == m-1) {
-					a[(m-1)*n+(m-1)] = cos*a[(m-1)*n+(m-1)];
+				c_old = c; s_old = s;
+
+//				printf("\nk = %d,  after A*T(k-1):\n", k);
+//				output(n, n, n, a);
+//				printf("\n");
+
+				if (k == m-2) {
+					a[k*n+k]=  c_old * a[k*n + k] - s * a[k*n + (k+1)];
+
+					/* i = k*/
+				    tmp =  c_old * a[(k+1)*n + k] - s * a[(k+1)*n + (k+1)];
+					a[(k+1)*n + (k+1)] = s * a[(k+1)*n + k] + c * a[(k+1)*n + (k+1)];
+				    a[(k+1)*n + k] = tmp;
+
+					a[k*n+(k+1)] = a[(k+1)*n+k];
+
+//					printf("\nk = %d,  after A*T(k-1):\n", k);
+//					output(n, n, n, a);
+//					printf("\n");
 				}
 //				if (iter == 20) {
 //				printf("\nk = %d\n", k);
