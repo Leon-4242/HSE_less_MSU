@@ -16,30 +16,40 @@ public:
 		friend class CStringList;
 		node* curr;
 		size_t ind;
-		explicit iterator(node* ptr, const size_t i): curr(ptr), ind(i) {}
+		CStringList *owner;
+		explicit iterator(node* ptr, const size_t i, CStringList* o): curr(ptr), ind(i), owner(o) {}
 		
 		node* get(void) {return curr;}
 		public:
 
-		char*& operator*(void) {return curr->data;}
+		char*& operator*(void) {assert(curr != nullptr); return curr->data;}
 	
 		iterator& operator++(void) {
-			assert(curr != nullptr); 
+			if (owner->size == 0 || curr == nullptr) {return *this;}
 			++ind;
 			curr = curr->next;
 			return *this;
 		}
 		iterator& operator--(void){
-			assert(curr != nullptr);
-			--ind;
-			curr = curr->prev;
+			if (owner->size == 0){ return *this;}
+
+			if (curr == owner->head) {
+	            return *this;
+	        }
+			if (curr == nullptr) {
+				curr = owner->tail;
+				ind = owner->size - 1;
+			} else {
+				--ind;
+				curr = curr->prev;
+			}
 			return *this;
 		}
 
 		size_t index(void) {return ind; }
 
 		bool operator== (const iterator& it) const {
-			return (it.curr == curr && it.ind == ind);
+			return (it.owner == owner && it.curr == curr && it.ind == ind);
 		}
 		bool operator!= (const iterator& it) const {
 			return !(*this == it);

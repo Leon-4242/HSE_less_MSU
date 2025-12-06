@@ -86,33 +86,40 @@ void CStringList::InsertAt(size_t index, const char* str) {
 }
 
 CStringList::iterator CStringList::begin(void) {
-    return iterator(head, 0);
+    return iterator(head, 0, this);
 }
 
 CStringList::iterator CStringList::end(void) {
 	if (size == 0) return this->begin();
-    return iterator(tail->next, size);
+    return iterator(tail->next, size, this);
 }
 
 void CStringList::RemoveIt(iterator it) {
-	node* rem = it.get();
-	if (size == 1) {
-		head = nullptr;
-		tail = nullptr;
-	} else if (0 == it.index()) {
-		head = head->next;
-		head->prev = nullptr;
-	} else if (size-1 == it.index()) {
-		tail = tail->prev;
-		tail->next = nullptr;
-	} else if (0 < it.index() && it.index() < size) {
-		rem->next->prev = rem->prev;
-		rem->prev->next = rem->next;
-	}
+    node* rem = it.get();
 
-	--size;
-	delete[] rem->data;
-	delete rem;
+    if (rem == nullptr || size == 0 || it.ind >= size)
+        return; 
+
+    if (size == 1) {
+        head = nullptr;
+        tail = nullptr;
+    } 
+    else if (it.ind == 0) {
+        head = head->next;
+        head->prev = nullptr;
+    } 
+    else if (it.ind == size - 1) {
+        tail = tail->prev;
+        tail->next = nullptr;
+    } 
+    else {
+        rem->next->prev = rem->prev;
+        rem->prev->next = rem->next;
+    }
+
+    --size;
+    delete[] rem->data;
+    delete rem;
 }
 
 void CStringList::RemoveAt(size_t index) {
@@ -160,6 +167,8 @@ void CStringList::QuickSort(size_t n, node* left, node* right, int (*compare)(co
 		CStringList::swap(l, r);
 		if (r == left) left = l;
 		if (l == right) right = r;
+		if (r == pivot) pivot = l;
+		if (l == pivot) pivot = r;
 
 		l = l->next;
 		r = r->prev;
@@ -179,7 +188,7 @@ void CStringList::Sort(int (*compare)(const char*, const char*)) {
 void CStringList::swap(node*& a, node*& b) {
 	if (a == b) return;
 
-	if (b == head || a == tail) {swap(b, a); return;}
+	if (b == head || a == tail || b->next == a) {swap(b, a); return;}
 	
 	if (a->next == b) {
         node* aPrev = a->prev;
