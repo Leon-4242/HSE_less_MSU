@@ -16,12 +16,13 @@ void CString::MoveOnly(CString& b)
   //str.reset(b.str.get());
   //может использовать str.swap(b.str);
   str = std::move(b.str);
-  b.SetZero();
+  b.str.reset(); //вместо SetZero
+	b.n = 0;
 }
 //-=-
 void CString::CopyOnly(const CString& b)
 {
-	SetZero();
+  this->n=0; //Вместо SetZero
   if(b.n>0)
   {
     str.reset(new char[n=b.n]);
@@ -41,7 +42,7 @@ CString::~CString()
 //-=-
 CString::CString(size_t k,char c)
 {
-  SetZero();
+  n = 0; //вместо SetZero
   str.reset(new char[k]);
   //str = new char[k];
   for(size_t i=0; i<k; i++)
@@ -58,7 +59,8 @@ CString& CString::operator=(CString &&b)
 {
   if(&b!=this)
   {
-    SetZero();
+    //SetZero();
+    n=0;//вместо SetZero
     MoveOnly(b);
   }
   return *this;
@@ -69,7 +71,8 @@ CString& CString::operator=(const CString& b)
   if(&b!=this)
   {
     //Full_clean();
-    SetZero();
+    //SetZero();
+    n=0;//вместо SetZero
     CopyOnly(b);
   }
   return *this;
@@ -78,7 +81,10 @@ CString& CString::operator=(const CString& b)
 CString& CString::operator=(char s[])
 {
   //Full_clean();
-  SetZero();
+  //SetZero();
+  n=0;
+  str.reset(); //а может и не надо, по сути не надо 
+  
 
   size_t count = 0;
   while(s[count]!='\0')
@@ -113,7 +119,6 @@ const char& CString::operator[](size_t i)const
 CString CString::operator+(const CString& b)
 {
   CString tmp((this->n + b.n));
-//	size_t i = 0;
 	for (size_t i = 0; i <(this->n); i++)
 		tmp[i] = this->str.get()[i];
 	for (size_t i = this->n; i < (this->n + b.n); i++)

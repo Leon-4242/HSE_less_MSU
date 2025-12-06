@@ -30,6 +30,16 @@ void CStringList::AddAll(const CStringList& other) {
 	node* other_curr = other.head;
 	node* curr = tail;
 
+	if (size == 0 && other.size != 0) {
+		curr = new node;
+		curr->next = curr->prev = nullptr;
+		head = tail = curr;
+		curr->data = new char[strlen(other_curr->data)+1];
+		strcpy(curr->data, other_curr->data);
+		other_curr = other_curr->next;
+		size = 1;
+	}
+
 	while (other_curr != nullptr) {
 		curr->next = new node;
 		curr->next->prev = curr;
@@ -38,37 +48,41 @@ void CStringList::AddAll(const CStringList& other) {
 		curr->data = new char[strlen(other_curr->data)+1];
 		strcpy(curr->data, other_curr->data);
 		other_curr = other_curr->next;
+		++size;
 	}
-	size += other.size;
+	tail = curr;
 }
 
 void CStringList::InsertAt(size_t index, const char* str) {
-    if (index < 0 || index > size) return;
-	++size;
+    if (index > size) return;
 
 	node* tmp = new node;
 	tmp->data = new char[strlen(str)+1];
 	strcpy(tmp->data, str);
+	tmp->next = tmp->prev = nullptr;
 
-	if (index == 0) {
+	if (size == 0) {
+		head = tail = tmp;
+	} else if (index == 0) {
 		tmp->next = head;
 		head->prev = tmp;
 		head = tmp;
-	} else if (index == size-1){
+	} else if (index == size){
 		tail->next = tmp;
 		tmp->prev = tail;
-		tail = tail->next;
-		tail->next = nullptr;
+		tail = tmp;
 	} else {
 		node* curr = head;
 		while (index > 1) {curr = curr->next; --index;}
 
-		tmp->next = curr->next->next;
-		curr->next->next->prev = tmp;
+		tmp->next = curr->next;
+		curr->next->prev = tmp;
 
 		tmp->prev = curr;
 		curr->next = tmp;
 	}
+
+	++size;
 }
 
 CStringList::iterator CStringList::begin(void) {
@@ -76,6 +90,7 @@ CStringList::iterator CStringList::begin(void) {
 }
 
 CStringList::iterator CStringList::end(void) {
+	if (size == 0) return this->begin();
     return iterator(tail->next, size);
 }
 
@@ -101,7 +116,7 @@ void CStringList::RemoveIt(iterator it) {
 }
 
 void CStringList::RemoveAt(size_t index) {
-    if (index < 0 || index >= size) return;
+    if (index >= size) return;
 	auto it = this->begin();
 
 	while(index > 0) {++it; --index;}
@@ -133,7 +148,7 @@ void CStringList::Clear() {
 void CStringList::QuickSort(size_t n, node* left, node* right, int (*compare)(const char*, const char*)) {
     if (n == 1 || n == 0) return;
 	node* pivot = left;
-	for (int i = 0; i < n/2; ++i) pivot = pivot->next;
+	for (size_t i = 0; i < n/2; ++i) pivot = pivot->next;
     node* l = left; node* r = right;
 	
 	int i = 0, j = n-1;
@@ -164,9 +179,26 @@ void CStringList::Sort(int (*compare)(const char*, const char*)) {
 void CStringList::swap(node*& a, node*& b) {
 	if (a == b) return;
 
-	if (b == head) swap(b, a);
-	if (a == tail) swap(b, a);
+	if (b == head || a == tail) {swap(b, a); return;}
 	
+	if (a->next == b) {
+        node* aPrev = a->prev;
+        node* bNext = b->next;
+
+		(aPrev ? aPrev->next : head ) = b;
+        (bNext ? bNext->prev : tail ) = a;
+
+        b->prev = aPrev;
+        a->next = bNext;
+
+        b->next = a;
+        a->prev = b;
+
+		aPrev = a;
+		a = b;
+		b = aPrev;
+		return;
+	}
 	node* curr = a->prev;
 	(curr ? curr->next : head) = b;
 	a->prev = b->prev;
