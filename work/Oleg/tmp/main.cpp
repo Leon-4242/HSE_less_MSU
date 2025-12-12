@@ -1,4 +1,4 @@
-#include "fun.hpp"
+#include "fun_2.hpp"
 
 int main(void)
 {
