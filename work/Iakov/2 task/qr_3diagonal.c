@@ -6,7 +6,7 @@ int min(int a, int b);
 int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* t2, int* its, double* x) {
 	struct timeval start, end;
     long long start_us, end_us;
-	int i = 0, j = 0, k = 0, iter = 0, m = 0, t = 0;
+	int i = 0, j = 0, k = 0, iter = 0, m = 0;
 	double tmp = 0, norm_A = 0, sum = 0, c = 0, s = 0,
 		   s_k = 0, norm_a1 = 0, prod = 0, norm_x = 0, c_old = 0, s_old = 0;
 
@@ -199,7 +199,7 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 
 void r1_r2(int n, double* a, double* lambda, double* r1, double* r2) {
 // A_inf = max_i sum_j fabs(a[i*n+j])
-	int i = 0, j = 0; double sum = 0, max = 0, norm_A = 0, sigma = 0;
+	int i = 0, j = 0; double sum = 0, norm_A = 0, sigma = 0;
 
 	for (i = 0; i < n; ++i) {
 		sum = 0;
