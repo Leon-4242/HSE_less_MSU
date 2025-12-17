@@ -33,6 +33,7 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 		for(i = k+1; i < n; ++i) {
 			x[i] = a[i*n+k];
 		}
+		if (fabs(x[k+1]+norm_a1) < eps) continue;
 		x[k+1] -= norm_a1;
 		
 		norm_x = sqrt(x[k+1]*x[k+1] + s_k);
@@ -86,7 +87,10 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
 
 	while (m > 2) {
 		while (fabs(a[(m-1)*n+m-2]) > eps*norm_A && fabs(a[(m-2)*n+(m-3)]) > eps*norm_A) {
-			s_k = a[(m-1)*n+(m-1)];
+			tmp = sqrt((a[(m-2)*n+(m-2)]-a[(m-1)*n+(m-1)])*(a[(m-2)*n+(m-2)]-a[(m-1)*n+(m-1)])+4*a[(m-2)*n+(m-1)]*a[(m-2)*n+(m-1)]);
+			s_k = (a[(m-2)*n+(m-2)] + a[(m-1)*n+(m-1)] - tmp)/2.;
+
+			//s_k = a[(m-1)*n+(m-1)];
 			for (i = 0; i < m; ++i) {a[i*n+i] -= s_k;}
 	
 
@@ -101,6 +105,8 @@ int qr_3diagonal(int n, double* a, double* res, double eps, double* t1, double* 
                 c = a[k*n+k] / norm_a1;
                 s = -a[(k+1)*n+k] / norm_a1;
 
+				if (fabs(c) < eps) c = 0.;
+				if (fabs(s) < eps) s = 0.;	
                 /* ---------- Левое умножение G_k * A ---------- */
                 a[(k+1)*n + k] = 0;
                 a[k*n + k] = norm_a1;
