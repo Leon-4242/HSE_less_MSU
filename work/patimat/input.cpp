@@ -6,8 +6,6 @@ int input(int s, const std::string& filename, int n, double* a) {
 }
 
 int finput(const std::string& filename, int n, double* a) {
-	double curr = 0;
-
 	std::ifstream in(filename);
 	if (!in.is_open()) return 1;
 	
