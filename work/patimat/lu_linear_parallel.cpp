@@ -32,6 +32,7 @@ void* lu_linear_parallel(void* arg) {
 		        sum += a[pivot[i]*n + t] * a[pivot[t]*n + k];
 
 		    a[pivot[i]*n + k] -= sum;
+//			a[pivot[i]*n+k] /= a[pivot[k]*n+k];
 		}
 
 		pthread_barrier_wait(args->barrier);
@@ -120,6 +121,8 @@ void* lu_linear_parallel(void* arg) {
 
 		pthread_mutex_unlock(args->mutex);
 
+//		if (args->thread_id == 0) 
+//			b[pivot[i]] /= a[pivot[i]*n+i]; 		
 		pthread_barrier_wait(args->barrier);
     }
 	
