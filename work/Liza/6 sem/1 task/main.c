@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 		filename  = argv[4]; 
 	}
 	buffer = (double*)malloc(2*n*sizeof(double));
-	ind = (int*)malloc(2*n*sizeof(int));
+	ind = (int*)malloc(n*sizeof(int));
 	for (i = 0; i < n; ++i)
 		ind[i] = i;
 
@@ -109,12 +109,13 @@ int main(int argc, char** argv) {
 	}
 	
 	if (rank == 0) {
-		printf ("%s : Task = %d Res1 = %e Res2 = %e T1 = %.2f T2 = %.2f S = %d N = %d\n", argv[0], task, r1, r2, /* 0., 0.,*/ t1, t2 /*0.*/, s, n);
+		printf ("%s : Task = %d Res1 = %e Res2 = %e T1 = %.2f T2 = %.2f S = %d N = %d\n", argv[0], task, r1, r2, t1, t2, s, n);
 	}
 	
 	free(local_array);
 	free(local_rev);
 	free(buffer);
+	free(ind);
 
 	MPI_Finalize();
 	return 0;

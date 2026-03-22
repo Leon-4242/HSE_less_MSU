@@ -46,8 +46,8 @@ int jordan_reverse_mpi(int n, double *local_a, double *local_rev, int rank, int 
 				buffer[j] = local_a[(k-rank)/size * n + ind[j]];
 			}
 			for (j = 0; j < n; ++j) {
-				local_rev[(k-rank)/size * n + j] /= local_a[(k-rank)/size * n + ind[k]];
-				buffer[j+n] = local_rev[(k-rank)/size * n + j];
+				local_rev[(k-rank)/size * n + ind[j]] /= local_a[(k-rank)/size * n + ind[k]];
+				buffer[j+n] = local_rev[(k-rank)/size * n + ind[j]];
 			}
 			local_a[(k-rank)/size * n + ind[k]] = 1;
 			buffer[k] = 1.;
@@ -55,14 +55,6 @@ int jordan_reverse_mpi(int n, double *local_a, double *local_rev, int rank, int 
 
 		MPI_Bcast(buffer, 2*n, MPI_DOUBLE, k%size, MPI_COMM_WORLD);
 
-/*		if (rank == 0) {
-			printf("\nbuffer\n");
-			for (i = 0; i < n; ++i){
-				printf("%lf ", buffer[i]);
-			}
-			printf("\n");
-		}
-*/
 		for (i = 0; i < local_n; ++i) {
 			if (!(rank == k%size && (k-rank)/size == i)) {
 				for (j = k+1; j < n; ++j) {
@@ -70,19 +62,12 @@ int jordan_reverse_mpi(int n, double *local_a, double *local_rev, int rank, int 
 				}
 
 				for (j = 0; j < n; ++j) {
-					local_rev[i*n+j] -= local_a[i*n+ind[k]]*buffer[n+j];
+					local_rev[i*n+ind[j]] -= local_a[i*n+ind[k]]*buffer[n+j];
 				}
 			}
 		}
 
 		MPI_Barrier(MPI_COMM_WORLD);
-	}
-
-	for (i = 0; i < n; ++i) {
-		ind[ind[i]+n] = i;
-	}
-	for (i = 0; i < n; ++i) {
-		ind[i] = ind[i+n];
 	}
 
 	for (i = 0; i < n; ++i) {
@@ -156,40 +141,6 @@ void r_mpi(int n, double* local_a, double* local_b, double* r, int rank, int siz
 		}
 	}
 	MPI_Type_free(&local_col_t);
-/*
-	for (t = 0; t < n; ++t) {
-		sum = 0;
-		for (i = 0; i < local_n; ++i) {
-			if (i*size+rank == t)
-				buffer[i] = -1;
-			else
-				buffer[i] = 0;
-		}
-
-		for (k = 0; k < size; ++k) {
-			new_rank = (rank+k)%size;
-			tmp_n = n/size;
-			if (new_rank < n%size) 
-				++tmp_n;
-
-			for (i = 0; i < local_n; ++i) {
-				for (j = 0; j < tmp_n; ++j) {
-					buffer[i] += local_a[i*n+(j*size+new_rank)]*local_b[j*n+t];
-				}
-			}	
-		
-			MPI_Sendrecv_replace(local_b, ((n/size)+1)*n, MPI_DOUBLE, (rank - 1 + size) % size, 0, (rank+1)%size, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-		}
-
-		for (i = 0; i < local_n; ++i) {
-			sum += fabs(buffer[i]);
-		}
-		MPI_Reduce(&sum, &max, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-		if (rank == 0 && norm_ab_e < max) {
-			norm_ab_e = max;
-		}
-	}
-*/
 	if (rank == 0)
 		*r = norm_ab_e;
 } 
