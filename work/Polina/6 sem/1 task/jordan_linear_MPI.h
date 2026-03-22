@@ -17,8 +17,4 @@ int jordan_linear(int, double*, double*, double*, double*, int*, ThreadArgs*, pt
 
 void r1_r2_mpi(int, double*, double*, double*, double*, double*, int, int);
 
-int glob_loc(int, int, int);
-
-int loc_glob(int, int, int);
-
 #endif

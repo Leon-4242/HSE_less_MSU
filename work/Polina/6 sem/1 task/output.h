@@ -2,7 +2,8 @@
 #define OUTPUT
 
 #include <stdio.h>
+#include <mpi.h>
 
-void output(int, int, int, double*);
+void output_file_mpi(char*, int, int, int, double*, int, int);
 
 #endif

@@ -1,14 +1,6 @@
 #include <stdio.h>
 #include "jordan_linear_MPI.h"
 
-int glob_loc(int loc, int rank, int size) {
-	return
-}
-
-int loc_glob(int glob, int rank, int size) {
-
-}
-
 int jordan_linear_mpi(int n, double *local_a, double *local_res, double *local_b, int rank, int size, double* buffer) {
 	int local_n = 0, k = 0, start = 0, local_n_max = 0, j = 0, i = 0;
 	double local_max = 0, tmp = 0;
@@ -43,33 +35,33 @@ int jordan_linear_mpi(int n, double *local_a, double *local_res, double *local_b
 					for (j = 0; j < n; ++j) {
 						tmp = local_a[(k-rank)/size * n + j];
 						local_a[(k-rank)/size * n + j] = local_a[(global.index-rank)/size * n + j];
-						local_a[(local.index-rank)/size * n + j] = tmp;
+						local_a[(global.index-rank)/size * n + j] = tmp;
 					}
 					tmp = local_b[(k-rank)/size];
-					local_b[(k-rank)/size] = local_b[(local.index-rank)/size];
-					local_b[(local.index-rank)/size] = tmp;
+					local_b[(k-rank)/size] = local_b[(global.index-rank)/size];
+					local_b[(global.index-rank)/size] = tmp;
 				} else {
 					if (rank == k%size) {
 						MPI_Sendrecv_replace(
 									local_a + (k-rank)/size * n, n, MPI_DOUBLE, 
-									local.index%size, 0, 
-									local.index%size, 0, 
+									global.index%size, 0, 
+									global.index%size, 0, 
 									MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
 						MPI_Sendrecv_replace(
 									local_b + (k-rank)/size, 1, MPI_DOUBLE, 
-									local.index%size, 0, 
-									local.index%size, 0, 
+									global.index%size, 0, 
+									global.index%size, 0, 
 									MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
 					} else {
 						MPI_Sendrecv_replace(
-									local_a + (local.index-rank)/size * n, n, MPI_DOUBLE, 
+									local_a + (global.index-rank)/size * n, n, MPI_DOUBLE, 
 									k%size, 0, 
 									k%size, 0, 
 									MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 						MPI_Sendrecv_replace(
-									local_b + (local.index-rank)/size, 1, MPI_DOUBLE, 
+									local_b + (global.index-rank)/size, 1, MPI_DOUBLE, 
 									k%size, 0, 
 									k%size, 0, 
 									MPI_COMM_WORLD, MPI_STATUS_IGNORE);

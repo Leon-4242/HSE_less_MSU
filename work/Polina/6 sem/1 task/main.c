@@ -67,6 +67,8 @@ int main(int argc, char** argv) {
 			return -1;
 	}
 	
+	output_file_mpi("out_data.txt", r, r, n, local_array, rank, size);	
+
 	local_b = (double*)malloc((n/size + 1)*sizeof(double));
 	
 	for (i = 0; i < local_n; ++i) {
@@ -81,7 +83,6 @@ int main(int argc, char** argv) {
 	MPI_Barrier(MPI_COMM_WORLD);
 	t1 = MPI_Wtime();
 
-	//TODO: function
 	flag = jordan_linear_mpi(n, local_array, local_result, local_b, rank, size, buffer);
 	
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -90,6 +91,8 @@ int main(int argc, char** argv) {
 	if (flag) {	
 		r1 = -1; r2 = -1; t2 = 0;
 	} else {
+		output_file_mpi("out_rev.txt", r, r, n, local_result, rank, size);	
+		
 		flag = input_mpi(s, filename, n, local_array, buffer, rank, size);
 		for (i = 0; i < local_n; ++i) {
 			local_b[i] = 0;
