@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 	int* ind = NULL;
 	double r1 = 0, r2 = 0, t1 = 0, t2 = 0;
 	
-	task = 15;
+	task = 19;
 	//Initialization
 	if (argc < 4 || argc > 5) {
 		printf("Invalid number of arguments.\n");
